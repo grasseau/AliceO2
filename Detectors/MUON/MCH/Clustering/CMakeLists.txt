@@ -7,9 +7,22 @@
 # In applying this license CERN does not waive the privileges and immunities
 # granted to it by virtue of its status as an Intergovernmental Organization or
 # submit itself to any jurisdiction.
+find_package(GSL REQUIRED)
 
 o2_add_library(MCHClustering
                SOURCES src/ClusterOriginal.cxx
                        src/ClusterFinderOriginal.cxx
                        src/MathiesonOriginal.cxx
                PUBLIC_LINK_LIBRARIES O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering O2::Framework)
+               
+o2_add_library(MCHClusteringGEM
+               SOURCES src/ClusterOriginal.cxx
+                       src/ClusterFinderGEM.cxx
+                       src/dataStructure.cxx
+                       src/mathUtil.cxx
+                       src/padProcessing.cxx
+                       src/mathiesonFit.cxx
+                       src/mathieson.cxx
+                       src/gaussianEM.cxx
+                       src/clusterProcessing.cxx
+               PUBLIC_LINK_LIBRARIES GSL::gsl O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering  O2::Framework)
