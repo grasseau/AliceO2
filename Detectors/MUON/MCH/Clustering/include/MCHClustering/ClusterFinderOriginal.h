@@ -77,7 +77,7 @@ class ClusterFinderOriginal
   static constexpr float SDefaultClusterResolution = 0.2f;              ///< default cluster resolution (cm)
   static constexpr float SBadClusterResolution = 10.f;                  ///< bad (e.g. mono-cathode) cluster resolution (cm)
   // GG
-  ClusterDump *pClusterDump;
+  ClusterDump* pClusterDump;
   // GG
   void resetPreCluster(gsl::span<const Digit>& digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF, bool samePreCluster);
   void simplifyPreCluster(std::vector<int>& removedDigits);
