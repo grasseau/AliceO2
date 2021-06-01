@@ -61,7 +61,7 @@ ClusterFinderOriginal::ClusterFinderOriginal()
   mMathiesons[1].setSqrtKy3AndDeriveKy2Ky4(0.7642);
   
   // GG Init/open dump files
-  pClusterDump = new ClusterDump("recoRun2.dat");
+  pClusterDump = new ClusterDump("recoRun2.dat", 0);
 }
 
 //_________________________________________________________________________________________________
