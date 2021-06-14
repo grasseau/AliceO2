@@ -31,10 +31,6 @@
 #include "MCHMappingInterface/Segmentation.h"
 #include "MCHPreClustering/PreClusterFinder.h"
 
-// GG
-#include "ClusterDump.h"
-#include "dataStructure.h"
-
 namespace o2
 {
 namespace mch
@@ -59,14 +55,14 @@ class ClusterFinderOriginal
   void deinit();
   void reset();
 
-  void findClusters(gsl::span<const Digit> digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF, bool samePreCluster = 0);
+  void findClusters(gsl::span<const Digit> digits);
 
   /// return the list of reconstructed clusters
   const std::vector<ClusterStruct>& getClusters() const { return mClusters; }
   /// return the list of digits used in reconstructed clusters
   const std::vector<Digit>& getUsedDigits() const { return mUsedDigits; }
 
- private:
+ protected:
   static constexpr double SDistancePrecision = 1.e-3;                   ///< precision used to check overlaps and so on (cm)
   static constexpr double SLowestPadCharge = 4.f * 0.22875f;            ///< minimum charge of a pad
   static constexpr double SLowestPixelCharge = SLowestPadCharge / 12.;  ///< minimum charge of a pixel
@@ -76,10 +72,8 @@ class ClusterFinderOriginal
   static constexpr double SLowestCoupling = 1.e-2;                      ///< minimum coupling between clusters of pixels and pads
   static constexpr float SDefaultClusterResolution = 0.2f;              ///< default cluster resolution (cm)
   static constexpr float SBadClusterResolution = 10.f;                  ///< bad (e.g. mono-cathode) cluster resolution (cm)
-  // GG
-  ClusterDump* pClusterDump;
-  // GG
-  void resetPreCluster(gsl::span<const Digit>& digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF, bool samePreCluster);
+
+  void resetPreCluster(gsl::span<const Digit>& digits);
   void simplifyPreCluster(std::vector<int>& removedDigits);
   void processPreCluster();
 
@@ -120,7 +114,7 @@ class ClusterFinderOriginal
   void updatePads(const double fitParam[SNFitParamMax + 1], int nParamUsed);
 
   void setClusterResolution(ClusterStruct& cluster) const;
-
+  
   std::unique_ptr<MathiesonOriginal[]> mMathiesons; ///< Mathieson functions for station 1 and the others
   MathiesonOriginal* mMathieson = nullptr;          ///< pointer to the Mathieson function currently used
 

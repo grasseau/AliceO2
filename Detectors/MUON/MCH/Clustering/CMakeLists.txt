@@ -18,8 +18,10 @@ o2_add_library(MCHClustering
                PUBLIC_LINK_LIBRARIES O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering O2::Framework)
                
 o2_add_library(MCHClusteringGEM
-               SOURCES src/ClusterDump.cxx
+               SOURCES src/MathiesonOriginal.cxx               	
                        src/ClusterOriginal.cxx
+                       src/ClusterFinderOriginal.cxx
+                       src/ClusterDump.cxx
                        src/ClusterFinderGEM.cxx
                        src/dataStructure.cxx
                        src/mathUtil.cxx
