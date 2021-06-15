@@ -114,7 +114,7 @@ class ClusterFinderOriginal
   void updatePads(const double fitParam[SNFitParamMax + 1], int nParamUsed);
 
   void setClusterResolution(ClusterStruct& cluster) const;
-  
+
   std::unique_ptr<MathiesonOriginal[]> mMathiesons; ///< Mathieson functions for station 1 and the others
   MathiesonOriginal* mMathieson = nullptr;          ///< pointer to the Mathieson function currently used
 
