@@ -15,46 +15,6 @@
 using namespace o2::fv0;
 
 ClassImp(RawEventData);
-
-void EventHeader::print() const
-{
-  std::cout << std::hex;
-  std::cout << "################EventHeader###############" << std::endl;
-  std::cout << "startDescriptor: " << startDescriptor << std::endl;
-  std::cout << "nGBTWords: " << nGBTWords << std::endl;
-  std::cout << "BC: " << bc << std::endl;
-  std::cout << "Orbit: " << orbit << std::endl;
-  std::cout << "##########################################" << std::endl;
-  std::cout << std::dec;
-}
-
-void RawEventData::print() const
-{
-  std::cout << "==================Raw event data==================" << std::endl;
-  std::cout << "##################Header##################" << std::endl;
-  std::cout << "startDescriptor: " << mEventHeader.startDescriptor << std::endl;
-  std::cout << "Nchannels: " << mEventHeader.nGBTWords * 2 << std::endl;
-  std::cout << "BC: " << mEventHeader.bc << std::endl;
-  std::cout << "Orbit: " << mEventHeader.orbit << std::endl;
-  std::cout << "##########################################" << std::endl;
-  std::cout << "###################DATA###################" << std::endl;
-  for (int iCh = 0; iCh < mEventHeader.nGBTWords * 2; iCh++) {
-    std::cout << "------------Channel " << mEventData[iCh].channelID << "------------" << std::endl;
-    std::cout << "Charge: " << mEventData[iCh].charge << std::endl;
-    std::cout << "Time: " << mEventData[iCh].time << std::endl;
-    std::cout << "1TimeLostEvent: " << mEventData[iCh].is1TimeLostEvent << std::endl;
-    std::cout << "2TimeLostEvent: " << mEventData[iCh].is2TimeLostEvent << std::endl;
-    std::cout << "ADCinGate: " << mEventData[iCh].isADCinGate << std::endl;
-    std::cout << "AmpHigh: " << mEventData[iCh].isAmpHigh << std::endl;
-    std::cout << "DoubleEvent: " << mEventData[iCh].isDoubleEvent << std::endl;
-    std::cout << "EventInTVDC: " << mEventData[iCh].isEventInTVDC << std::endl;
-    std::cout << "TimeInfoLate: " << mEventData[iCh].isTimeInfoLate << std::endl;
-    std::cout << "TimeInfoLost: " << mEventData[iCh].isTimeInfoLost << std::endl;
-    std::cout << "numberADC: " << mEventData[iCh].numberADC << std::endl;
-  }
-  std::cout << "##########################################" << std::endl;
-}
-
 void RawEventData::printHexEventHeader() const
 {
   std::stringstream ssheader;
