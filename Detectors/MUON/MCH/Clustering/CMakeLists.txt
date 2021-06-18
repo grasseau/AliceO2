@@ -16,7 +16,7 @@ o2_add_library(MCHClustering
                        src/ClusterizerParam.cxx
                PUBLIC_LINK_LIBRARIES O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering
                                      O2::Framework O2::CommonUtils)
-                                     
+
 o2_add_library(MCHClusteringGEM
                SOURCES src/MathiesonOriginal.cxx
                        src/ClusterOriginal.cxx
