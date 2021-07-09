@@ -32,6 +32,7 @@
 #include "Framework/Task.h"
 #include "Framework/Logger.h"
 
+#include "CommonUtils/ConfigurableParam.h"
 #include "DataFormatsMCH/ROFRecord.h"
 #include "DataFormatsMCH/Digit.h"
 #include "MCHBase/PreCluster.h"
@@ -110,7 +111,12 @@ class ClusterFinderGEMTask
 
     // mClusterFinder.init( ClusterFinderGEM::DoGEM );
     if (isOriginalActivated()) {
-      mClusterFinderOriginal.init();
+      auto config = ic.options().get<std::string>("config");
+      if (!config.empty()) {
+        o2::conf::ConfigurableParam::updateFromFile(config, "MCHClustering", true);
+      }
+      bool run2Config = ic.options().get<bool>("run2-config");
+      mClusterFinderOriginal.init(run2Config);
     } else if (isGEMActivated()) {
       mClusterFinderGEM.init(mode);
     }
@@ -125,11 +131,11 @@ class ClusterFinderGEMTask
       }
       if (isOriginalDumped()) {
         delete mOriginalDump;
-        mOriginalDump = 0;
+        mOriginalDump = nullptr;
       }
       if (isGEMDumped()) {
         delete mGEMDump;
-        mGEMDump = 0;
+        mGEMDump = nullptr;
       }
     });
   }
@@ -177,22 +183,28 @@ class ClusterFinderGEMTask
         startOriginalIdx = mClusterFinderOriginal.getClusters().size();
         // Dump preclusters
         // std::cout << "PreCluster: digit start=" << preCluster.firstDigit <<" , digit size=" << preCluster.nDigits << std::endl;
-        if (isOriginalDumped())
+        if (isOriginalDumped()) {
           mClusterFinderGEM.dumpPreCluster(mOriginalDump, digits.subspan(preCluster.firstDigit, preCluster.nDigits), bCrossing, orbit, iPreCluster);
-        if (isGEMDumped())
+        }
+        if (isGEMDumped()) {
           mClusterFinderGEM.dumpPreCluster(mGEMDump, digits.subspan(preCluster.firstDigit, preCluster.nDigits), bCrossing, orbit, iPreCluster);
+        }
         // Clusterize
-        if (isOriginalActivated())
+        if (isOriginalActivated()) { 
           mClusterFinderOriginal.findClusters(digits.subspan(preCluster.firstDigit, preCluster.nDigits));
-        if (isGEMActivated())
+        }
+        if (isGEMActivated()) {
           mClusterFinderGEM.findClusters(digits.subspan(preCluster.firstDigit, preCluster.nDigits), bCrossing, orbit, iPreCluster);
+        }
         // Dump clusters (results)
         // std::cout << "[Original] total clusters.size=" << mClusterFinderOriginal.getClusters().size() << std::endl;
         // std::cout << "[GEM     ] total clusters.size=" << mClusterFinderGEM.getClusters().size() << std::endl;
-        if (isOriginalDumped())
+        if (isOriginalDumped()) {
           mClusterFinderGEM.dumpClusterResults(mOriginalDump, mClusterFinderOriginal.getClusters(), startOriginalIdx, bCrossing, orbit, iPreCluster);
-        if (isGEMDumped())
+        }
+        if (isGEMDumped()) {
           mClusterFinderGEM.dumpClusterResults(mGEMDump, mClusterFinderGEM.getClusters(), startGEMIdx, bCrossing, orbit, iPreCluster);
+        }
         // if ( isGEMDumped())
         iPreCluster++;
       }
@@ -200,10 +212,11 @@ class ClusterFinderGEMTask
       mTimeClusterFinder += tEnd - tStart;
 
       // fill the ouput messages
-      if (isGEMOutputStream())
+      if (isGEMOutputStream()) {
         clusterROFs.emplace_back(preClusterROF.getBCData(), clusters.size(), mClusterFinderGEM.getClusters().size());
-      else
+      } else {
         clusterROFs.emplace_back(preClusterROF.getBCData(), clusters.size(), mClusterFinderOriginal.getClusters().size());
+      }
       //
       writeClusters(clusters, usedDigits);
     }
@@ -223,10 +236,11 @@ class ClusterFinderGEMTask
       clusters.insert(clusters.end(), mClusterFinderOriginal.getClusters().begin(), mClusterFinderOriginal.getClusters().end());
     }
     auto digitOffset = usedDigits.size();
-    if (isGEMOutputStream())
+    if (isGEMOutputStream()) {
       usedDigits.insert(usedDigits.end(), mClusterFinderGEM.getUsedDigits().begin(), mClusterFinderGEM.getUsedDigits().end());
-    else
+    } else {
       usedDigits.insert(usedDigits.end(), mClusterFinderOriginal.getUsedDigits().begin(), mClusterFinderOriginal.getUsedDigits().end());
+    }
 
     for (auto itCluster = clusters.begin() + clusterOffset; itCluster < clusters.end(); ++itCluster) {
       itCluster->firstDigit += digitOffset;
