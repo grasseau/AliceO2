@@ -24,9 +24,13 @@ namespace o2
 {
 namespace mch
 {
-  double PoissonEMLoop(const Pads &pads, Pads &pixels, 
-              int qCutMode, double minPadResidu, int nItMax, int verbose);
-  double computeChiSquare( const Pads &pads, const double *qPredictedPads);
+/* Inv ???
+double PoissonEMLoop(const Pads &pads, Pads &pixels,
+            int qCutMode, double minPadResidu, int nItMax, int verbose);
+*/
+double PoissonEMLoop(const Pads& pads, Pads& pixels, double* Cij, Mask_t* maskCij,
+                     int qCutMode, double minPadResidu, int nItMax, int verbose);
+double computeChiSquare(const Pads& pads, const double* qPredictedPads);
 } // namespace mch
 } // namespace o2
 

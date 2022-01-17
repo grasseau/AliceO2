@@ -96,7 +96,6 @@ class ClusterFinderGEMTask
       o2::conf::ConfigurableParam::updateFromFile(config, "MCHClustering", true);
     }
     bool run2Config = ic.options().get<bool>("run2-config");
-    mClusterFinder.init(run2Config);
 
     // GG auto mode = ic.options().get<int>("mode");
     mode = ic.options().get<int>("mode");
@@ -126,7 +125,6 @@ class ClusterFinderGEMTask
     LOG(INFO) << "  Dump Original: " << isOriginalDumped() << std::endl;
     LOG(INFO) << "  Dump GEM     : " << isGEMDumped() << std::endl;
     LOG(INFO) << "  GEM stream output: " << isGEMOutputStream() << std::endl;
-    
 
     // mClusterFinder.init( ClusterFinderGEM::DoGEM );
     if (isOriginalActivated()) {
@@ -155,8 +153,8 @@ class ClusterFinderGEMTask
     auto stop = [this]() {
       /// close the output file
       LOG(INFO) << "stop GEM";
-      //this->mOutputFile.close();
-    };   
+      // this->mOutputFile.close();
+    };
   }
 
   //_________________________________________________________________________________________________
@@ -169,11 +167,11 @@ class ClusterFinderGEMTask
     auto preClusters = pc.inputs().get<gsl::span<PreCluster>>("preclusters");
     auto digits = pc.inputs().get<gsl::span<Digit>>("digits");
 
-    //LOG(INFO) << "received time frame with " << preClusterROFs.size() << " interactions";
+    // LOG(INFO) << "received time frame with " << preClusterROFs.size() << " interactions";
 
     // create the output messages for clusters and attached digits
     auto& clusterROFs = pc.outputs().make<std::vector<ROFRecord>>(OutputRef{"clusterrofs"});
-    auto& clusters = pc.outputs().make<std::vector<ClusterStruct>>(OutputRef{"clusters"});
+    auto& clusters = pc.outputs().make<std::vector<Cluster>>(OutputRef{"clusters"});
     auto& usedDigits = pc.outputs().make<std::vector<Digit>>(OutputRef{"clusterdigits"});
 
     clusterROFs.reserve(preClusterROFs.size());
@@ -187,6 +185,7 @@ class ClusterFinderGEMTask
       uint32_t orbit = preClusterROF.getBCData().orbit;
       uint32_t iPreCluster = 0;
       auto tStart = std::chrono::high_resolution_clock::now();
+      // Inv ??? if ( orbit==22 ) {
       //
       if (isOriginalActivated()) {
         mClusterFinderOriginal.reset();
@@ -199,10 +198,12 @@ class ClusterFinderGEMTask
       size_t startOriginalIdx = mClusterFinderOriginal.getClusters().size();
       // std::cout << "Start index GEM=" <<  startGEMIdx << ", Original=" << startOriginalIdx << std::endl;
       for (const auto& preCluster : preClusters.subspan(preClusterROF.getFirstIdx(), preClusterROF.getNEntries())) {
+        // Inv ??? for (const auto& preCluster : preClusters.subspan(preClusterROF.getFirstIdx(), 1102)) {
         startGEMIdx = mClusterFinderGEM.getClusters().size();
         startOriginalIdx = mClusterFinderOriginal.getClusters().size();
         // Dump preclusters
-        // std::cout << "PreCluster: digit start=" << preCluster.firstDigit <<" , digit size=" << preCluster.nDigits << std::endl;
+        // std::cout << "bCrossing=" << bCrossing << ", orbit=" << orbit << ", iPrecluster" << iPreCluster
+        //        << ", PreCluster: digit start=" << preCluster.firstDigit <<" , digit size=" << preCluster.nDigits << std::endl;
         if (isOriginalDumped()) {
           mClusterFinderGEM.dumpPreCluster(mOriginalDump, digits.subspan(preCluster.firstDigit, preCluster.nDigits), bCrossing, orbit, iPreCluster);
         }
@@ -228,6 +229,7 @@ class ClusterFinderGEMTask
         // if ( isGEMDumped())
         iPreCluster++;
       }
+      // } // Inv ??? if ( orbit==22 ) {
       auto tEnd = std::chrono::high_resolution_clock::now();
       mTimeClusterFinder += tEnd - tStart;
 
@@ -240,11 +242,14 @@ class ClusterFinderGEMTask
       //
       writeClusters(clusters, usedDigits);
     }
+
+    LOGP(info, "Found {:4d} clusters from {:4d} preclusters in {:2d} ROFs",
+         clusters.size(), preClusters.size(), preClusterROFs.size());
   }
 
  private:
   //_________________________________________________________________________________________________
-  void writeClusters(std::vector<ClusterStruct, o2::pmr::polymorphic_allocator<ClusterStruct>>& clusters,
+  void writeClusters(std::vector<Cluster, o2::pmr::polymorphic_allocator<Cluster>>& clusters,
                      std::vector<Digit, o2::pmr::polymorphic_allocator<Digit>>& usedDigits) const
   {
     /// fill the output messages with clusters and attached digits of the current event
@@ -276,7 +281,7 @@ class ClusterFinderGEMTask
 };
 
 //_________________________________________________________________________________________________
-o2::framework::DataProcessorSpec getClusterFinderOriginalSpec(const char* specName)
+o2::framework::DataProcessorSpec getClusterFinderGEMSpec(const char* specName)
 {
   return DataProcessorSpec{
     specName,
@@ -287,10 +292,15 @@ o2::framework::DataProcessorSpec getClusterFinderOriginalSpec(const char* specNa
             OutputSpec{{"clusters"}, "MCH", "CLUSTERS", 0, Lifetime::Timeframe},
             OutputSpec{{"clusterdigits"}, "MCH", "CLUSTERDIGITS", 0, Lifetime::Timeframe}},
     AlgorithmSpec{adaptFromTask<ClusterFinderGEMTask>()},
-    Options{{"config", VariantType::String, "", {"JSON or INI file with clustering parameters"}},
-            {"run2-config", VariantType::Bool, false, {"Setup for run2 data"}},
-            {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM | ClusterFinderGEMTask::DumpGEM | ClusterFinderGEMTask::GEMOutputStream, {"Running mode"}},
-            // {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM, {"Running mode"}},
+    Options{
+      {"mch-config", VariantType::String, "", {"JSON or INI file with clustering parameters"}},
+      {"run2-config", VariantType::Bool, false, {"Setup for run2 data"}},
+      {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM | ClusterFinderGEMTask::GEMOutputStream, {"Running mode"}},
+      // {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM, {"Running mode"}},
+
+      // {"mode", VariantType::Int, ClusterFinderGEMTask::DoOriginal, {"Running mode"}},
+      // {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM | ClusterFinderGEMTask::DumpGEM | ClusterFinderGEMTask::GEMOutputStream, {"Running mode"}},
+      // {"mode", VariantType::Int, ClusterFinderGEMTask::DoGEM, {"Running mode"}},
     }};
 }
 

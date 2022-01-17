@@ -24,7 +24,7 @@ namespace o2
 namespace mch
 {
 
-o2::framework::DataProcessorSpec getClusterFinderGEMSpec();
+o2::framework::DataProcessorSpec getClusterFinderGEMSpec(const char* specName = "mch-cluster-finder-GEM");
 
 } // end namespace mch
 } // end namespace o2

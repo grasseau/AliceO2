@@ -36,7 +36,7 @@ void computeResidual(const double* xyDxy, const double* zObs, const double* thet
 
 void collectResidual(double* residual, int N);
 
-void computeMathiesonResidual( const double *xyDxy, const Mask_t *cath, const double *zObs, const double *theta, int chId, int K, int N, double *residual);
+void computeMathiesonResidual(const double* xyDxy, const Mask_t* cath, const double* zObs, const double* theta, int chId, int K, int N, double* residual);
 
 int getKThetaInit();
 

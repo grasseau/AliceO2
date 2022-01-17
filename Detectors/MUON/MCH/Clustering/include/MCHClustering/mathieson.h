@@ -27,16 +27,16 @@ void compute2DMathiesonMixturePadIntegrals(const double* xyInfSup0, const double
                                            int N, int K, int chamberId,
                                            double Integrals[]);
 
-void computeCij( const double *xyInfSup0, const double *theta,
-                            int N, int K, int chamberId, double Cij[] );
+void computeCij(const double* xyInfSup0, const double* theta,
+                int N, int K, int chamberId, double Cij[]);
 }
 
 namespace o2
 {
 namespace mch
 {
-void computeCij( const Pads &pads, const Pads &theta,
-                            double Cij[] );
+void computeCij(const Pads& pads, const Pads& theta,
+                double Cij[]);
 } // namespace mch
 } // namespace o2
 #endif

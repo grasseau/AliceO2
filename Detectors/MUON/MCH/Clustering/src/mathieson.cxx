@@ -51,7 +51,7 @@ void initMathieson()
   }
 }
 
-void compute2DPadIntegrals(const double *xInf, const double *xSup, const double* yInf, const double*ySup,
+void compute2DPadIntegrals(const double* xInf, const double* xSup, const double* yInf, const double* ySup,
                            int N, int chamberId, double Integrals[])
 {
   // Returning array: Charge Integral on all the pads
@@ -124,78 +124,80 @@ void compute2DMathiesonMixturePadIntegrals(const double* xyInfSup0, const double
   }
 }
 
-void computeCij( const double *xyInfSup0, const double *theta,
-                            int N, int K, int chamberId, double Cij[] ) {
-    // Returning array: Charge Integral on all the pads
-    // Remarks:
-    // - This fct is a cumulative one, as a result it should be set to zero
-    //    before calling it
-    const double *xInf0 = getConstXInf( xyInfSup0, N);
-    const double *yInf0 = getConstYInf( xyInfSup0, N);
-    const double *xSup0 = getConstXSup( xyInfSup0, N);
-    const double *ySup0 = getConstYSup( xyInfSup0, N);
-    //
-    const double *muX = getConstMuX( theta, K);
-    const double *muY = getConstMuY( theta, K);
-    const double *w = getConstW( theta, K);
+void computeCij(const double* xyInfSup0, const double* theta,
+                int N, int K, int chamberId, double Cij[])
+{
+  // Returning array: Charge Integral on all the pads
+  // Remarks:
+  // - This fct is a cumulative one, as a result it should be set to zero
+  //    before calling it
+  const double* xInf0 = getConstXInf(xyInfSup0, N);
+  const double* yInf0 = getConstYInf(xyInfSup0, N);
+  const double* xSup0 = getConstXSup(xyInfSup0, N);
+  const double* ySup0 = getConstYSup(xyInfSup0, N);
+  //
+  const double* muX = getConstMuX(theta, K);
+  const double* muY = getConstMuY(theta, K);
+  const double* w = getConstW(theta, K);
 
-    double z[N];
-    double xyInfSup[4*N];
-    double *xInf = getXInf( xyInfSup, N);
-    double *yInf = getYInf( xyInfSup, N);
-    double *xSup = getXSup( xyInfSup, N);
-    double *ySup = getYSup( xyInfSup, N);
-    for (int k=0; k < K; k++) {
-      vectorAddScalar( xInf0, - muX[k], N, xInf );
-      vectorAddScalar( xSup0, - muX[k], N, xSup );
-      vectorAddScalar( yInf0, - muY[k], N, yInf );
-      vectorAddScalar( ySup0, - muY[k], N, ySup );
-      compute2DPadIntegrals( xInf, xSup, yInf, ySup, N, chamberId, &Cij[N*k] );
-      // printf("Vector Sum %g\n", vectorSum(z, N) );
-      // ??? vectorMultScalar( &Cij[N*k], w[k], N,  &Cij[N*k]);
-    }
+  double z[N];
+  double xyInfSup[4 * N];
+  double* xInf = getXInf(xyInfSup, N);
+  double* yInf = getYInf(xyInfSup, N);
+  double* xSup = getXSup(xyInfSup, N);
+  double* ySup = getYSup(xyInfSup, N);
+  for (int k = 0; k < K; k++) {
+    vectorAddScalar(xInf0, -muX[k], N, xInf);
+    vectorAddScalar(xSup0, -muX[k], N, xSup);
+    vectorAddScalar(yInf0, -muY[k], N, yInf);
+    vectorAddScalar(ySup0, -muY[k], N, ySup);
+    compute2DPadIntegrals(xInf, xSup, yInf, ySup, N, chamberId, &Cij[N * k]);
+    // printf("Vector Sum %g\n", vectorSum(z, N) );
+    // ??? vectorMultScalar( &Cij[N*k], w[k], N,  &Cij[N*k]);
+  }
 }
 
 namespace o2
 {
 namespace mch
 {
-void computeCij( const Pads &pads, const Pads &theta,double Cij[] ) {
-    // ??? Rewrite the comments
-    // Returning array: Charge Integral on all the pads
-    // Remarks:
-    // - This fct is a cumulative one, as a result it should be set to zero
-    //    before calling it
-    if ((pads.mode != Pads::xyInfSupMode) || (theta.mode != Pads::xydxdyMode)) {
-      printf("Warning: bad representation (mode) of pads in computeCij (padMode=%d, pixelMode=%d)\n", pads.mode, theta.mode);
-      throw std::overflow_error("Bad mode");
-      return;
-    }
-    int N = pads.nPads;
-    int K = theta.nPads;
-    int chId = pads.chamberId;
-    const double *xInf0 = pads.xInf;
-    const double *yInf0 = pads.yInf;
-    const double *xSup0 = pads.xSup;
-    const double *ySup0 = pads.ySup;
+void computeCij(const Pads& pads, const Pads& theta, double Cij[])
+{
+  // ??? Rewrite the comments
+  // Returning array: Charge Integral on all the pads
+  // Remarks:
+  // - This fct is a cumulative one, as a result it should be set to zero
+  //    before calling it
+  if ((pads.mode != Pads::xyInfSupMode) || (theta.mode != Pads::xydxdyMode)) {
+    printf("Warning: bad representation (mode) of pads in computeCij (padMode=%d, pixelMode=%d)\n", pads.mode, theta.mode);
+    throw std::overflow_error("Bad mode");
+    return;
+  }
+  int N = pads.nPads;
+  int K = theta.nPads;
+  int chId = pads.chamberId;
+  const double* xInf0 = pads.xInf;
+  const double* yInf0 = pads.yInf;
+  const double* xSup0 = pads.xSup;
+  const double* ySup0 = pads.ySup;
 
-    //
-    const double *muX = theta.x;
-    const double *muY = theta.y;
+  //
+  const double* muX = theta.x;
+  const double* muY = theta.y;
 
-    double xInf[N];
-    double yInf[N];
-    double xSup[N];
-    double ySup[N];
+  double xInf[N];
+  double yInf[N];
+  double xSup[N];
+  double ySup[N];
 
-    for (int k=0; k < K; k++) {
-      vectorAddScalar( xInf0, - muX[k], N, xInf );
-      vectorAddScalar( xSup0, - muX[k], N, xSup );
-      vectorAddScalar( yInf0, - muY[k], N, yInf );
-      vectorAddScalar( ySup0, - muY[k], N, ySup );
-      compute2DPadIntegrals( xInf, xSup, yInf, ySup, N, chId, &Cij[N*k] );
-      // printf("k=%d, mu[k]=(%f, %f) Sum_pads Ck = %g\n", k, muX[k], muY[k], vectorSum( &Cij[N*k], N) );
-    }
+  for (int k = 0; k < K; k++) {
+    vectorAddScalar(xInf0, -muX[k], N, xInf);
+    vectorAddScalar(xSup0, -muX[k], N, xSup);
+    vectorAddScalar(yInf0, -muY[k], N, yInf);
+    vectorAddScalar(ySup0, -muY[k], N, ySup);
+    compute2DPadIntegrals(xInf, xSup, yInf, ySup, N, chId, &Cij[N * k]);
+    // printf("k=%d, mu[k]=(%f, %f) Sum_pads Ck = %g\n", k, muX[k], muY[k], vectorSum( &Cij[N*k], N) );
+  }
 }
 } // namespace mch
 } // namespace o2

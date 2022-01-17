@@ -95,7 +95,7 @@ inline static void vectorAddVector(const double* u, double cst, const double* v,
 inline static void vectorAbs(const double* u, int N, double* res)
 {
   for (int i = 0; i < N; i++) {
-    res[i] = fabs( u[i] );
+    res[i] = fabs(u[i]);
   }
   return;
 }
@@ -227,24 +227,28 @@ inline static int vectorSumOfGreater(const double* src, double cmpValue, int N)
   return count;
 }
 
-inline static int vectorArgMax( const double *u, int N)
+inline static int vectorArgMax(const double* u, int N)
 {
-  int idx = -1; double maxVal = DBL_MIN; 
-  for (int i=0; i < N; i++) {
-    if( u[i] > maxVal) {
-      maxVal = u[i]; idx = i;
-    } 
+  int idx = -1;
+  double maxVal = DBL_MIN;
+  for (int i = 0; i < N; i++) {
+    if (u[i] > maxVal) {
+      maxVal = u[i];
+      idx = i;
+    }
   }
   return idx;
 }
 
-inline static int vectorArgMin( const double *u, int N)
+inline static int vectorArgMin(const double* u, int N)
 {
-  int idx = -1; double minVal = DBL_MAX; 
-  for (int i=0; i < N; i++) {
-    if( u[i] < minVal) {
-      minVal = u[i]; idx = i;
-    } 
+  int idx = -1;
+  double minVal = DBL_MAX;
+  for (int i = 0; i < N; i++) {
+    if (u[i] < minVal) {
+      minVal = u[i];
+      idx = i;
+    }
   }
   return idx;
 }
@@ -262,18 +266,18 @@ inline static int vectorBuildMaskEqualShort(const short* src, short value, int N
   return count;
 }
 
-inline static void vectorBuildMaskGreater( const double *src, double value, int N, short *mask) 
+inline static void vectorBuildMaskGreater(const double* src, double value, int N, short* mask)
 {
-  for(int i=0; i < N; i++) {
-    mask[i] = (src[i] > value); 
-  } 
+  for (int i = 0; i < N; i++) {
+    mask[i] = (src[i] > value);
+  }
   return;
 }
 
-inline static void vectorBuildMaskEqual( const double *src, double value, int N, short *mask)
+inline static void vectorBuildMaskEqual(const double* src, double value, int N, short* mask)
 {
-  for(int i=0; i < N; i++) {
-      mask[i] = (src[i] == value);
+  for (int i = 0; i < N; i++) {
+    mask[i] = (src[i] == value);
   }
   return;
 }
@@ -397,13 +401,13 @@ inline static void vectorMaskedMult(const double* v, const Mask_t* mask, int N, 
   return;
 }
 
-inline static void vectorMaskedMultScalar( double *v, const Mask_t *mask, double trueVal, double falseVal, int N )
+inline static void vectorMaskedMultScalar(double* v, const Mask_t* mask, double trueVal, double falseVal, int N)
 {
-  for (int i=0, k=0; i < N; i++) {
-    v[i] = (mask[i]) ? v[i]*trueVal : v[i]*falseVal;
+  for (int i = 0, k = 0; i < N; i++) {
+    v[i] = (mask[i]) ? v[i] * trueVal : v[i] * falseVal;
   }
   return;
-} 
+}
 
 inline static void vectorMapShort(short* array, const short* map, int N)
 {

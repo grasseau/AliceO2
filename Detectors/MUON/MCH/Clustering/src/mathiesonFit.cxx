@@ -16,10 +16,8 @@
 #include "MCHClustering/mathUtil.h"
 #include "mathiesonFit.h"
 #include "MCHClustering/mathieson.h"
-#include "PadsPEM.h"
+#include "MCHClustering/PadsPEM.h"
 #include "MCHClustering/padProcessing.h"
-
-
 
 int f_ChargeIntegral(const gsl_vector* gslParams, void* dataFit, gsl_vector* residuals)
 {
@@ -35,7 +33,7 @@ int f_ChargeIntegral(const gsl_vector* gslParams, void* dataFit, gsl_vector* res
   Mask_t* notSaturated = dataPtr->notSaturated_ptr;
   int chamberId = dataPtr->chamberId;
   double* cathWeights = dataPtr->cathWeights_ptr;
-  double *cathMax      = dataPtr->cathMax_ptr;
+  double* cathMax = dataPtr->cathMax_ptr;
   double* zCathTotalCharge = dataPtr->zCathTotalCharge_ptr;
   int verbose = dataPtr->verbose;
   // Parameters
@@ -114,27 +112,26 @@ int f_ChargeIntegral(const gsl_vector* gslParams, void* dataFit, gsl_vector* res
 
   // Normalize with the max
   // TODO ??? Can be done in fitMatiesson
-  double maxThZ[2] = {0,0};
-  for (int i=0; i < N; i++) {
-    maxThZ[cath[i]] = fmax( maxThZ[cath[i]], notSaturated[i] * z[i]);
+  double maxThZ[2] = {0, 0};
+  for (int i = 0; i < N; i++) {
+    maxThZ[cath[i]] = fmax(maxThZ[cath[i]], notSaturated[i] * z[i]);
   }
   // Avoid dividing by 0
-  for (int c=0; c < 2; c++) {
-    if ( maxThZ[c] < 1.0e-6) {
+  for (int c = 0; c < 2; c++) {
+    if (maxThZ[c] < 1.0e-6) {
       // cathMax[c] sould be 0
       maxThZ[c] = 1.0;
     }
   }
   // Normalization coef
-  double coefNorm[2] = {cathMax[0]/maxThZ[0], cathMax[1]/maxThZ[1] };
+  double coefNorm[2] = {cathMax[0] / maxThZ[0], cathMax[1] / maxThZ[1]};
   double meanCoef = (coefNorm[0] + coefNorm[1]) / ((coefNorm[0] > 1.0e-6) + (coefNorm[1] > 1.0e-6));
   //
-  for (int i=0; i < N; i++) {
+  for (int i = 0; i < N; i++) {
     z[i] = z[i] * coefNorm[cath[i]];
   }
 
-
-  if ( verbose > 1) {
+  if (verbose > 1) {
     printf("    Max of unsaturated (observed) pads (cathMax0/1)= %f, %f, maxThZ (computed)  %f, %f\n", cathMax[0], cathMax[1], maxThZ[0], maxThZ[1]);
   }
   // double cathPenal = fabs(zCathTotalCharge[0] - zCath0) + fabs(zCathTotalCharge[1] - zCath1);
@@ -143,36 +140,34 @@ int f_ChargeIntegral(const gsl_vector* gslParams, void* dataFit, gsl_vector* res
   // TODO Optimize (elementwise not a good solution)
   double wPenal = 0.0;
   // ??? why abs value for penalties
-  for (int k = 0; k < (K-1); k++) {
-      if (w[k] < 0.0 ) {
-        wPenal += (-w[k]);
-      }
-      else if (w[k] > 1.0) {
-        wPenal += (w[k] - 1.0);
-      }
+  for (int k = 0; k < (K - 1); k++) {
+    if (w[k] < 0.0) {
+      wPenal += (-w[k]);
+    } else if (w[k] > 1.0) {
+      wPenal += (w[k] - 1.0);
+    }
   }
   // printf("    coefNorm ??? %f, %f\n", maxThZ[0], maxThZ[1]);
   // printf("    coefNorm ??? %f, %f\n", coefNorm[0], coefNorm[1]);
   // printf("    meanCoef ??? %f\n", meanCoef);
   wPenal = wPenal + fabs(1.0 - vectorSum(w, K - 1) - lastW);
-  if ( verbose > 1) {
+  if (verbose > 1) {
     printf("    wPenal: %f\n", wPenal);
   }
   for (int i = 0; i < N; i++) {
     // gsl_vector_set(residuals, i, (zObs[i] - z[i]) * (1.0 + cathPenal) + wPenal);
     double mask = notSaturated[i];
     // if ((notSaturated[i] == 0) && (z[i] < zObs[i]) && (z[i] > 1.5 * zObs[i]) ) {
-    if ((notSaturated[i] == 0) && (z[i] < zObs[i]) ) {
+    if ((notSaturated[i] == 0) && (z[i] < zObs[i])) {
       // mask = 1.0;
       // Test
       // Don't consider saturated pads
       // mask = notSaturated[i];
       mask = 1.0;
-
     }
     //
     // mask = 1.0;
-    gsl_vector_set(residuals, i, mask * ((zObs[i] - z[i]) + meanCoef  * wPenal));
+    gsl_vector_set(residuals, i, mask * ((zObs[i] - z[i]) + meanCoef * wPenal));
     // gsl_vector_set(residuals, i, mask * (zObs[i] - z[i]) + 0 * wPenal);
   }
   if (verbose > 1) {
@@ -204,7 +199,7 @@ int f_ChargeIntegral0(const gsl_vector* gslParams, void* dataFit, gsl_vector* re
   Mask_t* notSaturated = dataPtr->notSaturated_ptr;
   int chamberId = dataPtr->chamberId;
   double* cathWeights = dataPtr->cathWeights_ptr;
-  double *cathMax      = dataPtr->cathMax_ptr;
+  double* cathMax = dataPtr->cathMax_ptr;
   double* zCathTotalCharge = dataPtr->zCathTotalCharge_ptr;
   int verbose = dataPtr->verbose;
   // Parameters
@@ -280,34 +275,33 @@ int f_ChargeIntegral0(const gsl_vector* gslParams, void* dataFit, gsl_vector* re
       sumNormalizedZ[1] += notSaturated[i] * z[i];
     }
   }
-  if (0 ) {
-  // Normalize with the charge sum
-  double var[2] = {1.0 / sumNormalizedZ[0], 1. / sumNormalizedZ[1]};
-  for (int i = 0; i < N; i++) {
-    if (cath[i] == 0) {
-      z[i] = z[i] * var[0];
-    } else {
-      z[i] = z[i] * var[1];
+  if (0) {
+    // Normalize with the charge sum
+    double var[2] = {1.0 / sumNormalizedZ[0], 1. / sumNormalizedZ[1]};
+    for (int i = 0; i < N; i++) {
+      if (cath[i] == 0) {
+        z[i] = z[i] * var[0];
+      } else {
+        z[i] = z[i] * var[1];
+      }
     }
-  }
-  if (verbose > 1) {
-    printf("  sum mathiesons %f %f\n", sumNormalizedZ[0], sumNormalizedZ[1]);
-  }
-  vectorMultVector(z, cathWeights, N, z);
-  // vectorMultScalar( z, 2.0/sumNormalizedZ, N, z);
+    if (verbose > 1) {
+      printf("  sum mathiesons %f %f\n", sumNormalizedZ[0], sumNormalizedZ[1]);
+    }
+    vectorMultVector(z, cathWeights, N, z);
+    // vectorMultScalar( z, 2.0/sumNormalizedZ, N, z);
 
   } else {
-  // Normalize with the max
-  double maxThZ[2];
-  for (int i=0; i < N; i++) {
-    maxThZ[cath[i]] = fmax( maxThZ[cath[i]], notSaturated[i] * z[i]);
+    // Normalize with the max
+    double maxThZ[2];
+    for (int i = 0; i < N; i++) {
+      maxThZ[cath[i]] = fmax(maxThZ[cath[i]], notSaturated[i] * z[i]);
+    }
+    double var[2] = {cathMax[0] / maxThZ[0], cathMax[1] / maxThZ[1]};
+    for (int i = 0; i < N; i++) {
+      z[i] = z[i] * var[cath[i]];
+    }
   }
-  double var[2] = {cathMax[0]/maxThZ[0], cathMax[1]/maxThZ[1] };
-  for (int i=0; i < N; i++) {
-    z[i] = z[i] * var[cath[i]];
-  }
-  }
-
 
   // ??? why abs value for penalties
   double wPenal = abs(1.0 - vectorSum(w, K - 1) + lastW);
@@ -421,51 +415,50 @@ void fitMathieson(double* thetai,
     return;
   }
 
-
   funcDescription_t mathiesonData;
-  double cathMax[2] = { 0.0, 0.0};
-  double *cathWeights;
-  o2::mch::Pads *pads = nullptr;
+  double cathMax[2] = {0.0, 0.0};
+  double* cathWeights;
+  o2::mch::Pads* pads = nullptr;
 
-  if( 1 ) {
-  // Add boundary Pads
-  pads = addBoundaryPads( getX(xyDxy, N), getY(xyDxy, N), getDX(xyDxy, N), getDY(xyDxy, N),
-          z, cath, notSaturated, chamberId, N);
-  // inspectSavePixels( 3, *pads);
-  N = pads->nPads;
+  if (1) {
+    // Add boundary Pads
+    pads = addBoundaryPads(getX(xyDxy, N), getY(xyDxy, N), getDX(xyDxy, N), getDY(xyDxy, N),
+                           z, cath, notSaturated, chamberId, N);
+    // inspectSavePixels( 3, *pads);
+    N = pads->nPads;
     // Function description (extra data nor parameters)
-  mathiesonData.N = N;
-  mathiesonData.K = KMax;
-  mathiesonData.x_ptr = pads->x;
-  mathiesonData.y_ptr = pads->y;
-  mathiesonData.dx_ptr = pads->dx;
-  mathiesonData.dy_ptr = pads->dy;
-  mathiesonData.cath_ptr = pads->cath;
-  mathiesonData.zObs_ptr = pads->q;
-  mathiesonData.notSaturated_ptr = pads->saturate;
+    mathiesonData.N = N;
+    mathiesonData.K = KMax;
+    mathiesonData.x_ptr = pads->x;
+    mathiesonData.y_ptr = pads->y;
+    mathiesonData.dx_ptr = pads->dx;
+    mathiesonData.dy_ptr = pads->dy;
+    mathiesonData.cath_ptr = pads->cath;
+    mathiesonData.zObs_ptr = pads->q;
+    mathiesonData.notSaturated_ptr = pads->saturate;
     // Init the weights
-  cathWeights = new double[N];
-  for (int i = 0; i < N; i++) {
-    cathWeights[i] = (pads->cath[i] == 0) ? zCathTotalCharge[0] : zCathTotalCharge[1];
-    cathMax[pads->cath[i]] = fmax( cathMax[pads->cath[i]], pads->saturate[i]*pads->q[i] );
-  }
+    cathWeights = new double[N];
+    for (int i = 0; i < N; i++) {
+      cathWeights[i] = (pads->cath[i] == 0) ? zCathTotalCharge[0] : zCathTotalCharge[1];
+      cathMax[pads->cath[i]] = fmax(cathMax[pads->cath[i]], pads->saturate[i] * pads->q[i]);
+    }
   } else {
-  // Function description (extra data nor parameters)
-  mathiesonData.N = N;
-  mathiesonData.K = KMax;
-  mathiesonData.x_ptr = getX(xyDxy, N);
-  mathiesonData.y_ptr = getY(xyDxy, N);
-  mathiesonData.dx_ptr = getDX(xyDxy, N);
-  mathiesonData.dy_ptr = getDY(xyDxy, N);
-  mathiesonData.cath_ptr = cath;
-  mathiesonData.zObs_ptr = z;
-  mathiesonData.notSaturated_ptr = notSaturated;
-  // Init the weights
-  cathWeights = new double[N];
-  for (int i = 0; i < N; i++) {
-    cathWeights[i] = (cath[i] == 0) ? zCathTotalCharge[0] : zCathTotalCharge[1];
-    cathMax[cath[i]] = fmax( cathMax[cath[i]], notSaturated[i]*z[i] );
-  }
+    // Function description (extra data nor parameters)
+    mathiesonData.N = N;
+    mathiesonData.K = KMax;
+    mathiesonData.x_ptr = getX(xyDxy, N);
+    mathiesonData.y_ptr = getY(xyDxy, N);
+    mathiesonData.dx_ptr = getDX(xyDxy, N);
+    mathiesonData.dy_ptr = getDY(xyDxy, N);
+    mathiesonData.cath_ptr = cath;
+    mathiesonData.zObs_ptr = z;
+    mathiesonData.notSaturated_ptr = notSaturated;
+    // Init the weights
+    cathWeights = new double[N];
+    for (int i = 0; i < N; i++) {
+      cathWeights[i] = (cath[i] == 0) ? zCathTotalCharge[0] : zCathTotalCharge[1];
+      cathMax[cath[i]] = fmax(cathMax[cath[i]], notSaturated[i] * z[i]);
+    }
   }
 
   mathiesonData.cathWeights_ptr = cathWeights;
@@ -488,31 +481,33 @@ void fitMathieson(double* thetai,
   int K = KMax;
   // Sort w
   int maxIndex[KMax];
-  for( int k=0; k<KMax; k++) { maxIndex[k]=k; }
-  double *w = &muAndWi[2 * KMax];
-  std::sort( maxIndex, &maxIndex[KMax], [=](int a, int b){ return(w[a] > w[b]); });
+  for (int k = 0; k < KMax; k++) {
+    maxIndex[k] = k;
+  }
+  double* w = &muAndWi[2 * KMax];
+  std::sort(maxIndex, &maxIndex[KMax], [=](int a, int b) { return (w[a] > w[b]); });
 
   while (doFit) {
     // Select the best K's
     // Copy kTest max
-    double muAndWTest [3*K];
+    double muAndWTest[3 * K];
     // Mu part
-    for (int k=0; k < K; k++) {
+    for (int k = 0; k < K; k++) {
       // Respecttively mux, muy, w
       muAndWTest[k] = muAndWi[maxIndex[k]];
-      muAndWTest[k+K] = muAndWi[maxIndex[k]+KMax];
-      muAndWTest[k+2*K] = muAndWi[maxIndex[k]+2*KMax];
+      muAndWTest[k + K] = muAndWi[maxIndex[k] + KMax];
+      muAndWTest[k + 2 * K] = muAndWi[maxIndex[k] + 2 * KMax];
     }
-    if( verbose > 0) {
-      vectorPrint( "  Selected w", &muAndWTest[2*K], K);
-      vectorPrint( "  Selected mux", &muAndWTest[0], K);
-      vectorPrint( "  Selected muy", &muAndWTest[K], K);
+    if (verbose > 0) {
+      vectorPrint("  Selected w", &muAndWTest[2 * K], K);
+      vectorPrint("  Selected mux", &muAndWTest[0], K);
+      vectorPrint("  Selected muy", &muAndWTest[K], K);
     }
     mathiesonData.K = K;
     f.p = 3 * K - 1;
     // Set initial parameters
     // Inv ??? gsl_vector_view params0 = gsl_vector_view_array(muAndWi, 3 * K - 1);
-    gsl_vector_view params0 = gsl_vector_view_array( muAndWTest, 3 * K - 1);
+    gsl_vector_view params0 = gsl_vector_view_array(muAndWTest, 3 * K - 1);
 
     // Fitting method
     gsl_multifit_fdfsolver* s = gsl_multifit_fdfsolver_alloc(gsl_multifit_fdfsolver_lmsder, N, 3 * K - 1);
@@ -526,9 +521,11 @@ void fitMathieson(double* thetai,
     double initialResidual = 0.0;
     // Fitting iteration
     status = GSL_CONTINUE;
-    double residual = DBL_MAX;;
-    double prevResidual = DBL_MAX;;
-    double prevTheta[3*K-1];
+    double residual = DBL_MAX;
+    ;
+    double prevResidual = DBL_MAX;
+    ;
+    double prevTheta[3 * K - 1];
     // ??? for (int iter = 0; (status == GSL_CONTINUE) && (iter < 500); iter++) {
     for (int iter = 0; (status == GSL_CONTINUE) && (iter < 50); iter++) {
       // TODO: to speed if possible
@@ -563,8 +560,8 @@ void fitMathieson(double* thetai,
       if (fabs(prevResidual - residual) < 1.0e-2) {
         // Stop iteration
         // Take the previous value of theta
-        if ( verbose > 0) {
-          printf("  Stop iteration (dResidu~0), prevResidual=%f residual=%f\n", prevResidual, residual );
+        if (verbose > 0) {
+          printf("  Stop iteration (dResidu~0), prevResidual=%f residual=%f\n", prevResidual, residual);
         }
         for (int k = 0; k < (3 * K - 1); k++) {
           gsl_vector_set(s->x, k, prevTheta[k]);
@@ -572,25 +569,25 @@ void fitMathieson(double* thetai,
         status = GSL_SUCCESS;
       }
     }
-    double finalResidual=gsl_blas_dnrm2(s->f);
+    double finalResidual = gsl_blas_dnrm2(s->f);
     bool keepInitialTheta = fabs(finalResidual - initialResidual) / initialResidual < 1.0e-1;
 
-          // Khi2
-      if (computeKhi2 && (khi2 != nullptr)) {
-        // Khi2
-        double chi = gsl_blas_dnrm2(s->f);
-        double dof = N - (3 * K - 1);
-        double c = fmax(1.0, chi / sqrt(dof));
-        if (verbose > 0) {
-          printf("K=%d, chi=%f, chisq/dof = %g\n",  K, chi*chi, chi*chi / dof);
-        }
-        khi2[0] = chi * chi / dof;
+    // Khi2
+    if (computeKhi2 && (khi2 != nullptr)) {
+      // Khi2
+      double chi = gsl_blas_dnrm2(s->f);
+      double dof = N - (3 * K - 1);
+      double c = fmax(1.0, chi / sqrt(dof));
+      if (verbose > 0) {
+        printf("K=%d, chi=%f, chisq/dof = %g\n", K, chi * chi, chi * chi / dof);
       }
+      khi2[0] = chi * chi / dof;
+    }
 
     // ???? if (keepInitialTheta) {
     if (0) {
       // Keep the result of EM (GSL bug when no improvemebt)
-      copyTheta( thetai, K, thetaf, K, K);
+      copyTheta(thetai, K, thetaf, K, K);
     } else {
       // Fitted parameters
       /* Invalid ???
@@ -600,21 +597,19 @@ void fitMathieson(double* thetai,
       */
 
       // Mu part
-      for (int k=0; k < K; k++) {
+      for (int k = 0; k < K; k++) {
         muAndWf[k] = gsl_vector_get(s->x, k);
-        muAndWf[k+KMax] = gsl_vector_get(s->x, k+K);
+        muAndWf[k + KMax] = gsl_vector_get(s->x, k + K);
       }
       // w part
       double sumW = 0;
-      for (int k=0; k < K - 1; k++) {
-        double w = gsl_vector_get(s->x, k+2*K);
+      for (int k = 0; k < K - 1; k++) {
+        double w = gsl_vector_get(s->x, k + 2 * K);
         sumW += w;
-        muAndWf[k+2*KMax] = w;
+        muAndWf[k + 2 * KMax] = w;
       }
       // Last w : 1.0 - sumW
       muAndWf[3 * KMax - 1] = 1.0 - sumW;
-
-
 
       // Parameter error
       if (computeStdDev && (pError != nullptr)) { //
@@ -631,13 +626,14 @@ void fitMathieson(double* thetai,
       printf("  status parameter error = %s\n", gsl_strerror(status));
     }
     gsl_multifit_fdfsolver_free(s);
-    K = K-1;
+    K = K - 1;
     // doFit = (K < 3) && (K > 0);
     doFit = false;
   } // while(doFit)
   // Release memory
-  delete [] cathWeights;
-  if (pads != nullptr) delete pads;
+  delete[] cathWeights;
+  if (pads != nullptr)
+    delete pads;
   //
   return;
 }

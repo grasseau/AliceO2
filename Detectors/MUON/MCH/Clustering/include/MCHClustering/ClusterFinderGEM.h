@@ -28,7 +28,7 @@
 #include <TH2D.h>
 
 #include "DataFormatsMCH/Digit.h"
-#include "MCHBase/ClusterBlock.h"
+#include "DataFormatsMCH/Cluster.h"
 #include "MCHMappingInterface/Segmentation.h"
 #include "MCHPreClustering/PreClusterFinder.h"
 #include "ClusterFinderOriginal.h"
@@ -74,11 +74,11 @@ class ClusterFinderGEM
   //
   /// return the list of reconstructed clusters
 
-  const std::vector<ClusterStruct>& getClusters() const { return mClusters; }
+  const std::vector<Cluster>& getClusters() const { return mClusters; }
   /// return the list of digits used in reconstructed clusters
   const std::vector<Digit>& getUsedDigits() const { return mUsedDigits; }
   void dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Digit> digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
-  void dumpClusterResults(ClusterDump* dumpFile, const std::vector<ClusterStruct>& clusters, size_t startIdx, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
+  void dumpClusterResults(ClusterDump* dumpFile, const std::vector<Cluster>& clusters, size_t startIdx, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
 
  private:
   // GG Original commented
@@ -114,26 +114,26 @@ class ClusterFinderGEM
   // void shiftPixelsToKeep(double charge);
   // void cleanPixelArray(double threshold, std::vector<double>& prob);
 
-  //int fit(const std::vector<const std::vector<int>*>& clustersOfPixels, const double fitRange[2][2], double fitParam[SNFitParamMax + 1]);
-  //double fit(double currentParam[SNFitParamMax + 2], const double parmin[SNFitParamMax], const double parmax[SNFitParamMax],
-  //           int nParamUsed, int& nTrials) const;
-  //double computeChi2(const double param[SNFitParamMax + 2], int nParamUsed) const;
-  //void param2ChargeFraction(const double param[SNFitParamMax], int nParamUsed, double fraction[SNFitClustersMax]) const;
+  // int fit(const std::vector<const std::vector<int>*>& clustersOfPixels, const double fitRange[2][2], double fitParam[SNFitParamMax + 1]);
+  // double fit(double currentParam[SNFitParamMax + 2], const double parmin[SNFitParamMax], const double parmax[SNFitParamMax],
+  //            int nParamUsed, int& nTrials) const;
+  // double computeChi2(const double param[SNFitParamMax + 2], int nParamUsed) const;
+  // void param2ChargeFraction(const double param[SNFitParamMax], int nParamUsed, double fraction[SNFitClustersMax]) const;
   //
-  //float chargeIntegration(double x, double y, const PadOriginal& pad) const;
+  // float chargeIntegration(double x, double y, const PadOriginal& pad) const;
   //
-  //void split(const TH2D& histMLEM, const std::vector<double>& coef);
-  //void addPixel(const TH2D& histMLEM, int i0, int j0, std::vector<int>& pixels, std::vector<std::vector<bool>>& isUsed);
-  //void addCluster(int iCluster, std::vector<int>& coupledClusters, std::vector<bool>& isClUsed,
-  //                const std::vector<std::vector<double>>& couplingClCl) const;
-  // void extractLeastCoupledClusters(std::vector<int>& coupledClusters, std::vector<int>& clustersForFit,
-  //                                 const std::vector<std::vector<double>>& couplingClCl) const;
-  // int selectPads(const std::vector<int>& coupledClusters, const std::vector<int>& clustersForFit,
-  //               const std::vector<std::vector<double>>& couplingClPad);
-  // void merge(const std::vector<int>& clustersForFit, const std::vector<int>& coupledClusters, std::vector<std::vector<int>>& clustersOfPixels,
-  //           std::vector<std::vector<double>>& couplingClCl, std::vector<std::vector<double>>& couplingClPad) const;
-  // void updatePads(const double fitParam[SNFitParamMax + 1], int nParamUsed);
-  void setClusterResolution(ClusterStruct& cluster) const;
+  // void split(const TH2D& histMLEM, const std::vector<double>& coef);
+  // void addPixel(const TH2D& histMLEM, int i0, int j0, std::vector<int>& pixels, std::vector<std::vector<bool>>& isUsed);
+  // void addCluster(int iCluster, std::vector<int>& coupledClusters, std::vector<bool>& isClUsed,
+  //                 const std::vector<std::vector<double>>& couplingClCl) const;
+  //  void extractLeastCoupledClusters(std::vector<int>& coupledClusters, std::vector<int>& clustersForFit,
+  //                                  const std::vector<std::vector<double>>& couplingClCl) const;
+  //  int selectPads(const std::vector<int>& coupledClusters, const std::vector<int>& clustersForFit,
+  //                const std::vector<std::vector<double>>& couplingClPad);
+  //  void merge(const std::vector<int>& clustersForFit, const std::vector<int>& coupledClusters, std::vector<std::vector<int>>& clustersOfPixels,
+  //            std::vector<std::vector<double>>& couplingClCl, std::vector<std::vector<double>>& couplingClPad) const;
+  //  void updatePads(const double fitParam[SNFitParamMax + 1], int nParamUsed);
+  void setClusterResolution(Cluster& cluster) const;
   std::unique_ptr<MathiesonOriginal[]> mMathiesons; ///< Mathieson functions for station 1 and the others
   // GG MathiesonOriginal* mMathieson = nullptr;          ///< pointer to the Mathieson function currently used
 
@@ -141,7 +141,7 @@ class ClusterFinderGEM
   // GG  std::vector<PadOriginal> mPixels;   ///< list of pixels for the current precluster
 
   const mapping::Segmentation* mSegmentation = nullptr; ///< pointer to the DE segmentation for the current precluster
-  std::vector<ClusterStruct> mClusters{};               ///< list of reconstructed clusters
+  std::vector<Cluster> mClusters{};                     ///< list of reconstructed clusters
   std::vector<Digit> mUsedDigits{};                     ///< list of digits used in reconstructed clusters
 
   PreClusterFinder mPreClusterFinder{}; ///< preclusterizer

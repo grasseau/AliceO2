@@ -41,6 +41,8 @@
 #include "MathiesonOriginal.h"
 #include "mathiesonFit.h"
 
+#define VERBOSE 0
+
 namespace o2
 {
 namespace mch
@@ -130,13 +132,13 @@ void ClusterFinderGEM::reset()
     delete[] saturated;
     saturated = nullptr;
   };
-  freeMemoryPadProcessing();
+  // Inv ??? freeMemoryPadProcessing();
   mClusters.clear();
   mUsedDigits.clear();
 }
 
 //_________________________________________________________________________________________________
-void ClusterFinderGEM::dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Digit> digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF)
+void ClusterFinderGEM::dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Digit> digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster)
 {
   /// reset the precluster with the pads converted from the input digits
   // GG mPrecluster defined in other MCHPreClustering/PreClusterFinder.h
@@ -192,7 +194,7 @@ void ClusterFinderGEM::dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Dig
 
   if ((N != 0)) {
     // Replace 0, by 0xFFFFFFFF
-    uint32_t header[6] = {(uint32_t)(bunchCrossing), (orbit), iROF, (0), N, (uint32_t)(DEId)};
+    uint32_t header[6] = {(uint32_t)(bunchCrossing), (orbit), iPreCluster, (0), N, (uint32_t)(DEId)};
     dumpFile->dumpUInt32(0, 6, header);
     dumpFile->dumpFloat64(0, N, xPad);
     dumpFile->dumpFloat64(0, N, yPad);
@@ -206,7 +208,7 @@ void ClusterFinderGEM::dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Dig
 }
 
 //_________________________________________________________________________________________________
-void ClusterFinderGEM::dumpClusterResults(ClusterDump* dumpFile, const std::vector<ClusterStruct>& clusters, size_t startIdx, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF)
+void ClusterFinderGEM::dumpClusterResults(ClusterDump* dumpFile, const std::vector<Cluster>& clusters, size_t startIdx, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster)
 {
   // Dump result
   // Dump hits from iNewCluster to mClusters.size()
@@ -224,7 +226,7 @@ void ClusterFinderGEM::dumpClusterResults(ClusterDump* dumpFile, const std::vect
   // Header
   // std::cout << "  [GEM] Dump Cluster " << dumpFile->getName() << ", size=" << N << " start=" << startIdx << std::endl;
 
-  uint32_t header[6] = {(uint32_t)(bunchCrossing), (orbit), iROF, (0), N, 0};
+  uint32_t header[6] = {(uint32_t)(bunchCrossing), (orbit), iPreCluster, (0), N, 0};
   dumpFile->dumpUInt32(0, 6, header);
   //
   double x[N], y[N];
@@ -233,7 +235,7 @@ void ClusterFinderGEM::dumpClusterResults(ClusterDump* dumpFile, const std::vect
   uint32_t firstDigit[N], nDigits[N];
   int i = 0;
   for (int n = startIdx; n < clusters.size(); ++n, i++) {
-    ClusterStruct hit = clusters[n];
+    Cluster hit = clusters[n];
     x[i] = hit.x;
     y[i] = hit.y;
     ex[i] = hit.ex;
@@ -255,7 +257,7 @@ void ClusterFinderGEM::dumpClusterResults(ClusterDump* dumpFile, const std::vect
 }
 
 //_________________________________________________________________________________________________
-void ClusterFinderGEM::fillGEMInputData(gsl::span<const Digit>& digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF)
+void ClusterFinderGEM::fillGEMInputData(gsl::span<const Digit>& digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster)
 {
   /// reset the precluster with the pads converted from the input digits
   // GG mPrecluster defined in other MCHPreClustering/PreClusterFinder.h
@@ -310,7 +312,7 @@ void ClusterFinderGEM::fillGEMInputData(gsl::span<const Digit>& digits, uint16_t
 }
 
 //_________________________________________________________________________________________________
-void ClusterFinderGEM::setClusterResolution(ClusterStruct& cluster) const
+void ClusterFinderGEM::setClusterResolution(Cluster& cluster) const
 {
   /// set the cluster resolution in both directions depending on whether its position
   /// lies on top of a fired digit in both planes or not (e.g. mono-cathode)
@@ -347,7 +349,7 @@ void ClusterFinderGEM::setClusterResolution(ClusterStruct& cluster) const
 
 //_________________________________________________________________________________________________
 void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
-                                    uint16_t bunchCrossing, uint32_t orbit, uint32_t iROF)
+                                    uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster)
 {
   /// reconstruct the clusters from the list of digits of one precluster
   /// reconstructed clusters and associated digits are added to the internal lists
@@ -357,13 +359,14 @@ void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
     return;
   }
   uint32_t nPreviousCluster = mClusters.size();
-  printf("----------------------------------------\n");
-  std::cout << "  [GEM] PreCluster BC=" << bunchCrossing
-          << ", orbit = " << orbit
-          << ", iROF = " << iROF
-          << std::endl;
-  printf("----------------------------------------\n");
-
+  if (VERBOSE > 0) {
+    printf("----------------------------------------\n");
+    std::cout << "  [GEM] PreCluster BC=" << bunchCrossing
+              << ", orbit = " << orbit
+              << "iPreCluster,  = " << iPreCluster
+              << std::endl;
+    printf("----------------------------------------\n");
+  }
   // std::cout << "  [GEM] hits/mClusters.size=" << mClusters.size() << std::endl;
 
   // set the Mathieson function to be used
@@ -371,7 +374,7 @@ void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
 
   // reset the current precluster being processed
   // GG Set the Precluster (pads , ....)
-  fillGEMInputData(digits, bunchCrossing, orbit, iROF);
+  fillGEMInputData(digits, bunchCrossing, orbit, iPreCluster);
 
   // GG process clusters
   int chId = DEId / 100;
@@ -431,7 +434,7 @@ void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
             dy = SDefaultClusterResolution;
           }
            */
-        uint32_t uid = ClusterStruct::buildUniqueId(digits[0].getDetID() / 100 - 1, digits[0].getDetID(), thetaToGroup[s]);
+        uint32_t uid = Cluster::buildUniqueId(digits[0].getDetID() / 100 - 1, digits[0].getDetID(), thetaToGroup[s]);
         mClusters.push_back({
           static_cast<float>(x), static_cast<float>(y), 0.0, // x, y, z
           static_cast<float>(0), static_cast<float>(0),      // x, y resolution
