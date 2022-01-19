@@ -68,6 +68,34 @@ o2_add_library(MCHGEMWorkflow
                    O2::MCHRawDecoder
                )
 
+o2_add_library(MCHGEMWorkflow
+               SOURCES
+                   src/ClusterFinderOriginalSpec.cxx
+                   src/ClusterFinderGEMSpec.cxx
+                   src/ClusterReaderSpec.cxx
+                   src/ClusterWriterSpec.cxx
+                   src/DataDecoderSpec.cxx
+                   src/EntropyDecoderSpec.cxx
+                   src/TimeClusterFinderSpec.cxx
+                   src/PreClusterFinderSpec.cxx
+                   src/SanityCheck.cxx
+                   src/TrackReaderSpec.cxx
+                   src/TrackTreeReader.cxx
+                   src/TrackWriterSpec.cxx
+               PUBLIC_LINK_LIBRARIES
+                   O2::CommonUtils
+                   O2::DPLUtils
+                   O2::DataFormatsParameters
+                   O2::SimulationDataFormat
+                   O2::DetectorsRaw
+                   O2::MCHCTF
+                   O2::MCHClusteringGEM
+                   O2::MCHPreClustering
+                   O2::MCHTimeClustering
+                   O2::MCHRawCommon
+                   O2::MCHRawDecoder
+               )
+
 o2_add_executable(
         cru-page-reader-workflow
         SOURCES src/cru-page-reader-workflow.cxx
