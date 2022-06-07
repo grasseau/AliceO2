@@ -1,6 +1,6 @@
 // Copyright 2019-2020 CERN and copyright holders of ALICE O2.
-// See https://alice-o2.web.cern.ch/copyright for details of the copyright holders.
-// All rights not expressly granted are reserved.
+// See https://alice-o2.web.cern.ch/copyright for details of the copyright
+// holders. All rights not expressly granted are reserved.
 //
 // This software is distributed under the terms of the GNU General Public
 // License v3 (GPL Version 3), copied verbatim in the file "COPYING".
@@ -10,10 +10,12 @@
 // or submit itself to any jurisdiction.
 
 /// \file ClusterFinderGEM.cxx
-/// \brief Definition of a class to reconstruct clusters with the original MLEM algorithm
+/// \brief Definition of a class to reconstruct clusters with the original MLEM
+/// algorithm
 ///
 /// The original code is in AliMUONClusterFinderMLEM and associated classes.
-/// It has been re-written in an attempt to simplify it without changing the results.
+/// It has been re-written in an attempt to simplify it without changing the
+/// results.
 ///
 /// \author Gilles Grasseau, Subatech
 
@@ -28,7 +30,7 @@
 // GG
 #include <iostream>
 
-#include <FairLogger.h>
+#include <FairMQLogger.h>
 
 #include "MCHClustering/ClusterDump.h"
 
@@ -42,7 +44,8 @@ ClusterDump::ClusterDump(const char* str, int mode_)
 {
   fileName = str;
   mode = mode_;
-  dumpFiles[0].open(str, std::fstream::out | std::fstream::app | std::ios_base::binary);
+  dumpFiles[0].open(str, std::fstream::out | std::fstream::app |
+                           std::ios_base::binary);
 }
 
 //_________________________________________________________________________________________________
@@ -54,10 +57,7 @@ ClusterDump::~ClusterDump()
 }
 
 //_________________________________________________________________________________________________
-void ClusterDump::flush()
-{
-  dumpFiles[0].flush();
-}
+void ClusterDump::flush() { dumpFiles[0].flush(); }
 
 void ClusterDump::dumpFloat32(int ifile, long size, const float_t* data)
 {

@@ -39,9 +39,13 @@
 #include "PadOriginal.h"
 #include "ClusterOriginal.h"
 #include "MathiesonOriginal.h"
-#include "mathiesonFit.h"
+#include "MCHClustering/ClusterConfig.h"
+#include "MCHClustering/clusterProcessing.h"
+#include "mathUtil.h"
+#include "mathieson.h"
+#include "InspectModel.h"
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 namespace o2
 {
@@ -65,7 +69,7 @@ ClusterFinderGEM::ClusterFinderGEM()
   mMathiesons[1].setSqrtKy3AndDeriveKy2Ky4(0.7642);
   // GG
   // init Mathieson
-  initMathieson();
+  o2::mch::initMathieson();
   nPads = 0;
   xyDxy = nullptr;
   cathode = nullptr;
@@ -359,11 +363,11 @@ void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
     return;
   }
   uint32_t nPreviousCluster = mClusters.size();
-  if (VERBOSE > 0) {
+  if (ClusterConfig::processingLog >= ClusterConfig::info) {
     printf("----------------------------------------\n");
     std::cout << "  [GEM] PreCluster BC=" << bunchCrossing
               << ", orbit = " << orbit
-              << "iPreCluster,  = " << iPreCluster
+              << ", iPreCluster,  = " << iPreCluster
               << std::endl;
     printf("----------------------------------------\n");
   }
@@ -380,19 +384,22 @@ void ClusterFinderGEM::findClusters(gsl::span<const Digit> digits,
   int chId = DEId / 100;
   int nbrOfHits = clusterProcess(xyDxy, cathode, saturated, padCharge, chId, nPads);
   double theta[nbrOfHits * 5];
-  Group_t thetaToGroup[nbrOfHits];
-  collectTheta(theta, thetaToGroup, nbrOfHits);
+  Groups_t thetaToGroup[nbrOfHits];
+  /// collectTheta(theta, thetaToGroup, nbrOfHits);
+  collectSeeds(theta, thetaToGroup, nbrOfHits);
   // std::cout << "  [GEM] Seeds found by GEM " << nbrOfHits << " / nPads = " << nPads << std::endl;
   double* muX = getMuX(theta, nbrOfHits);
   double* muY = getMuY(theta, nbrOfHits);
   double* w = getW(theta, nbrOfHits);
   // Find subClusters with there seeds
   //
-  Group_t padToCathGrp[nPads];
-  collectPadToCathGroup(padToCathGrp, nPads);
+  /// ??? to fuse with collectSeeds
+  Groups_t padToCathGrp[nPads];
+  collectGroupMapping(padToCathGrp, nPads);
+  // vectorPrintShort( "padToCathGrp ???", padToCathGrp, nPads);
   // Take care the number of groups can be !=
   // between thetaToGroup
-  Group_t nCathGrp = vectorMaxShort(padToCathGrp, nPads);
+  Groups_t nCathGrp = vectorMaxShort(padToCathGrp, nPads);
   int nPadStored = 0;
   // Index of the first store digit of the group
   uint32_t firstDigit;
