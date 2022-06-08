@@ -43,7 +43,7 @@ static const int nbrOfPadsLimitForTheFitting = 70;
 
 double epsilonGeometry = 1.0e-4;
 
-ClusterPEM::ClusterPEM() {}
+ClusterPEM::ClusterPEM() = default;
 
 ClusterPEM::ClusterPEM(Pads* pads0, Pads* pads1)
 {
@@ -179,7 +179,7 @@ ClusterPEM::~ClusterPEM()
   for (int c = 0; c < 2; c++) {
     if (pads[c] == nullptr) {
       delete pads[c];
-      pads[c] == nullptr;
+      pads[c] = nullptr;
     }
     deleteInt(mapCathPadIdxToPadIdx[c]);
     deleteShort(cathGroup[c]);
@@ -194,7 +194,7 @@ ClusterPEM::~ClusterPEM()
   deleteInt(JInterI);
   if (mapKToIJ != nullptr) {
     delete[] mapKToIJ;
-    mapKToIJ == nullptr;
+    mapKToIJ = nullptr;
   }
   deleteInt(mapIJToK);
   deleteInt(aloneIPads);
@@ -414,8 +414,9 @@ void ClusterPEM::computeProjectedPads(const Pads& pad0InfSup,
   if (includeAlonePads) {
     ij_ptr = JInterI;
     for (PadIdx_t j = 0; j < N1; j++) {
-      for (countJInterI = 0; *ij_ptr != -1; countJInterI++, ij_ptr++)
-        ;
+      for (countJInterI = 0; *ij_ptr != -1; countJInterI++) {
+          ij_ptr++;
+      }
       if (countJInterI == 0) {
         l = x1Inf[j];
         r = x1Sup[j];
@@ -443,8 +444,9 @@ void ClusterPEM::computeProjectedPads(const Pads& pad0InfSup,
     printf("builProjectPads mapIJToK=%p, N0=%d N1=%d\\n", mapIJToK, N0, N1);
     for (int i = 0; i < N0; i++) {
       for (int j = 0; j < N1; j++) {
-        if ((mapIJToK[i * N1 + j] != -1))
+        if ((mapIJToK[i * N1 + j] != -1)) {
           printf(" %d inter %d\n", i, j);
+        }
       }
     }
     vectorPrintInt("builProjectPads", aloneKPads, k);
@@ -517,13 +519,15 @@ int ClusterPEM::buildProjectedGeometry(int includeSingleCathodePads)
   if (includeSingleCathodePads) {
     // Add alone cath0-pads
     for (PadIdx_t i = 0; i < N0; i++) {
-      if (vectorSumRowChar(&intersectionMatrix[i * N1], N0, N1) == 0)
+      if (vectorSumRowChar(&intersectionMatrix[i * N1], N0, N1) == 0) {
         nbrOfSinglePads++;
+      }
     }
     // Add alone cath1-pads
     for (PadIdx_t j = 0; j < N1; j++) {
-      if (vectorSumColumnChar(&intersectionMatrix[j], N0, N1) == 0)
+      if (vectorSumColumnChar(&intersectionMatrix[j], N0, N1) == 0) {
         nbrOfSinglePads++;
+      }
     }
   }
   // Add alone pas and row/column separators
@@ -572,10 +576,10 @@ int ClusterPEM::buildProjectedGeometry(int includeSingleCathodePads)
   computeProjectedPads(padInfSup0, padInfSup1, maxNbrOfProjPads, aloneIPads,
                        aloneJPads, aloneKPads, includeSingleCathodePads);
 
-  if (ClusterConfig::padMappingCheck)
+  if (ClusterConfig::padMappingCheck) {
     checkConsistencyMapKToIJ(intersectionMatrix, mapKToIJ, mapIJToK, aloneIPads,
                              aloneJPads, N0, N1, projectedPads->getNbrOfPads());
-
+  }
   //
   // Get the isolated new pads
   // (they have no neighboring)
@@ -656,8 +660,9 @@ double* ClusterPEM::projectChargeOnProjGeometry(int includeAlonePads)
     // Save the starting index of the begining of the row
     rowStart = ij_ptr;
     // sum of charge with intercepting j-pad
-    for (sumCh1ByRow = 0.0; *ij_ptr != -1; ij_ptr++)
+    for (sumCh1ByRow = 0.0; *ij_ptr != -1; ij_ptr++) {
       sumCh1ByRow += ch1[*ij_ptr];
+    }
     double ch0_i = ch0[i];
     if (sumCh1ByRow != 0.0) {
       double cst = ch0[i] / sumCh1ByRow;
@@ -703,8 +708,9 @@ double* ClusterPEM::projectChargeOnProjGeometry(int includeAlonePads)
     // Save the starting index of the beginnig of the column
     colStart = ij_ptr;
     // sum of charge intercepting i-pad
-    for (sumCh0ByCol = 0.0; *ij_ptr != -1; ij_ptr++)
+    for (sumCh0ByCol = 0.0; *ij_ptr != -1; ij_ptr++) {
       sumCh0ByCol += ch0[*ij_ptr];
+    }
     if (sumCh0ByCol != 0.0) {
       double cst = ch1[j] / sumCh0ByCol;
       for (ij_ptr = colStart; *ij_ptr != -1; ij_ptr++) {
@@ -718,9 +724,10 @@ double* ClusterPEM::projectChargeOnProjGeometry(int includeAlonePads)
     } else if (includeAlonePads) {
       // Alone j-pad
       k = aloneJPads[j];
-      if (ClusterConfig::padMappingCheck && (k < 0))
+      if (ClusterConfig::padMappingCheck && (k < 0)) {
         printf("ERROR: Alone j-pad with negative index j=%d\n", j);
       // printf("Alone i-pad  i=%d, k=%d\n", i, k);
+      }
       projCh1[k] = ch1[j];
     }
     ij_ptr++;
@@ -789,8 +796,9 @@ int ClusterPEM::buildGroupOfPads()
     nCathGroups = nbrOfProjGroups;
     nGroups = nCathGroups;
     // Identity mapping
-    for (int g = 0; g < (nbrOfProjGroups + 1); g++)
+    for (int g = 0; g < (nbrOfProjGroups + 1); g++) {
       grpToCathGrp[g] = g;
+    }
     // Add the pads (not present in the projected plane)
     int nNewGroups = pads[singleCathPlaneID]->addIsolatedPadInGroups(
       cathGroup[singleCathPlaneID], grpToCathGrp, nGroups);
@@ -944,8 +952,9 @@ int ClusterPEM::getConnectedComponentsOfProjPadsWOSinglePads()
   }
   while (nbrOfPadSetInGrp < N) {
     // Seeking the first unclassed pad (projPadToGrp[k]=0)
-    for (; (curPadGrp < &projPadToGrp[N]) && *curPadGrp != 0; curPadGrp++)
-      ;
+    for (; (curPadGrp < &projPadToGrp[N]) && *curPadGrp != 0; ) {
+        curPadGrp++;
+    }
     k = curPadGrp - projPadToGrp;
     if (ClusterConfig::groupsLog >= ClusterConfig::detail) {
       printf("    k=%d, nbrOfPadSetInGrp g=%d: n=%d\n", k, currentGrpId,
@@ -984,7 +993,7 @@ int ClusterPEM::getConnectedComponentsOfProjPadsWOSinglePads()
            *neigh_ptr != -1; neigh_ptr++) {
         j = *neigh_ptr;
         // printf("    neigh j %d\n, \n", j);
-        if ((projPadToGrp[j] == 0)) {
+        if (projPadToGrp[j] == 0) {
           // Add the neighbors in the currentgroup
           //
           // aloneKPads = 0 if only one cathode
@@ -1272,7 +1281,7 @@ int ClusterPEM::assignGroupToCathPads()
     if ((i >= 0) && (nCath0 != 0)) {
       // if the pad has already been set
       prevGroup0 = cath0ToGrpFromProj[i];
-      if ((prevGroup0 == 0)) {
+      if (prevGroup0 == 0) {
         if ((projGrpToCathGrp[g] == 0) && (g != 0)) {
           nCathGrp++;
           projGrpToCathGrp[g] = nCathGrp;
@@ -1299,7 +1308,7 @@ int ClusterPEM::assignGroupToCathPads()
     //
     if ((j >= 0) && (nCath1 != 0)) {
       prevGroup1 = cath1ToGrpFromProj[j];
-      if ((prevGroup1 == 0)) {
+      if (prevGroup1 == 0) {
         if ((projGrpToCathGrp[g] == 0) && (g != 0)) {
           nCathGrp++;
           projGrpToCathGrp[g] = nCathGrp;
@@ -1394,8 +1403,9 @@ void ClusterPEM::removeLowChargedGroups(int nGroups)
       for (int c = 0; c < 2; c++) {
         int nbrPads = pads[c]->getNbrOfPads();
         for (int p = 0; p < nbrPads; p++) {
-          if (cathGroup[c][p] == g)
+          if (cathGroup[c][p] == g) {
             cathGroup[c][p] = 0;
+          }
         }
       }
     }
@@ -1791,8 +1801,9 @@ int ClusterPEM::findLocalMaxWithPEM(double* thetaL, int nbrOfPadsInTheGroupCath)
   bool goon = true;
   int macroIt = 0;
   while (goon) {
-    if (localMax != nullptr)
+    if (localMax != nullptr) {
       saveLocalMax = new Pads(*localMax, o2::mch::Pads::xydxdyMode);
+    }
     previousCriteriom = criteriom;
     chi2 =
       PoissonEMLoop(*mPads, *pixels, Cij, maskCij, 0, minPadResidues[macroIt],
@@ -1803,13 +1814,16 @@ int ClusterPEM::findLocalMaxWithPEM(double* thetaL, int nbrOfPadsInTheGroupCath)
     double chi20 = chi2.first;
     double chi21 = chi2.second;
     int ndof0 = getNbrOfPads(0) - 3 * nParameters + 1;
-    if (ndof0 <= 0.)
+    if (ndof0 <= 0) {
       ndof0 = 1;
+    }
     int ndof1 = getNbrOfPads(1) - 3 * nParameters + 1;
-    if (ndof1 <= 0.)
+    if (ndof1 <= 0.) {
       ndof1 = 1;
-    if (dof == 0)
+    }
+    if (dof == 0) {
       dof = 1;
+    }
     if (ClusterConfig::EMLocalMaxLog >= ClusterConfig::info) {
       printf("???????? cath0=%d, cath1=%d\n", getNbrOfPads(0), getNbrOfPads(1));
       printf("???????? chi20=%6.2f, chi21=%6.2f\n", chi20, chi21);
@@ -2472,8 +2486,9 @@ int ClusterPEM::findLocalMaxWithBothCathodes(double* thetaOut, int kMax)
           localYMax[k] = 0.5 * (vMin + vMax);
           localQMax[k] = qU[uPadIdx];
           if (localYMax[k] == 0 &&
-              (ClusterConfig::laplacianLocalMaxLog > ClusterConfig::info))
+              (ClusterConfig::laplacianLocalMaxLog > ClusterConfig::info)) {
             printf("WARNING localYMax[k] == 0, meaning no intersection");
+          }
         } else {
           // y direction most precise
           // Find the x range intercepting pad u
@@ -2499,8 +2514,9 @@ int ClusterPEM::findLocalMaxWithBothCathodes(double* thetaOut, int kMax)
           localQMax[k] = qU[uPadIdx];
           // printf(" uPadIdx = %d/%d\n", uPadIdx, KU);
           if (localXMax[k] == 0 &&
-              (ClusterConfig::laplacianLocalMaxLog > ClusterConfig::info))
+              (ClusterConfig::laplacianLocalMaxLog > ClusterConfig::info)) {
             printf("WARNING localXMax[k] == 0, meaning no intersection");
+          }
         }
         if (ClusterConfig::laplacianLocalMaxLog > ClusterConfig::no) {
           printf(

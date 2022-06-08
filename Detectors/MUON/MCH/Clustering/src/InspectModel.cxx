@@ -17,7 +17,7 @@
 
 #include <algorithm>
 #include <stdexcept>
-#include <string.h>
+#include <cstring>
 #include <vector>
 
 #include "InspectModel.h"
@@ -118,24 +118,29 @@ void savePadsOfSubCluster(const double* xyDxy, const double* q, int n)
 void cleanInspectModel()
 {
   //
-  for (int i = 0; i < inspectModel.subClusterPadList.size(); i++)
+  for (int i = 0; i < inspectModel.subClusterPadList.size(); i++) {
     delete[] inspectModel.subClusterPadList[i].second;
+  }
   inspectModel.subClusterPadList.clear();
   //
-  for (int i = 0; i < inspectModel.subClusterChargeList.size(); i++)
+  for (int i = 0; i < inspectModel.subClusterChargeList.size(); i++) {
     delete[] inspectModel.subClusterChargeList[i].second;
+  }
   inspectModel.subClusterChargeList.clear();
   //
-  for (int i = 0; i < inspectModel.subClusterThetaEMFinal.size(); i++)
+  for (int i = 0; i < inspectModel.subClusterThetaEMFinal.size(); i++) {
     delete[] inspectModel.subClusterThetaEMFinal[i].second;
+  }
   inspectModel.subClusterThetaEMFinal.clear();
   //
-  for (int i = 0; i < inspectModel.subClusterThetaExtra.size(); i++)
+  for (int i = 0; i < inspectModel.subClusterThetaExtra.size(); i++) {
     delete[] inspectModel.subClusterThetaExtra[i].second;
+  }
   inspectModel.subClusterThetaExtra.clear();
   //
-  for (int i = 0; i < inspectModel.subClusterThetaFitList.size(); i++)
+  for (int i = 0; i < inspectModel.subClusterThetaFitList.size(); i++) {
     delete[] inspectModel.subClusterThetaFitList[i].second;
+  }
   inspectModel.subClusterThetaFitList.clear();
   //
   if (inspectModel.projectedPads != nullptr) {
@@ -162,7 +167,7 @@ void cleanInspectModel()
   cleanPixels();
   // Cath group
   delete[] inspectModel.padToCathGrp;
-  inspectModel.padToCathGrp = 0;
+  inspectModel.padToCathGrp = nullptr;
   inspectModel.nCathGroups = 0;
 }
 
@@ -222,14 +227,17 @@ void collectProjectedPads(double* xyDxy, double* chA, double* chB)
 
   int nbrOfProjPads = inspectModel.nbrOfProjPads;
   for (int i = 0; i < 4; i++) {
-    for (int k = 0; k < nbrOfProjPads; k++)
+    for (int k = 0; k < nbrOfProjPads; k++) {
       xyDxy[i * nbrOfProjPads + k] =
         inspectModel.projectedPads[i * nbrOfProjPads + k];
+    }
   }
-  for (int k = 0; k < nbrOfProjPads; k++)
+  for (int k = 0; k < nbrOfProjPads; k++) {
     chA[k] = inspectModel.qProj[k];
-  for (int k = 0; k < nbrOfProjPads; k++)
+  }
+  for (int k = 0; k < nbrOfProjPads; k++) {
     chB[k] = inspectModel.qProj[k];
+  }
   // printf("collectProjectedPads nbrOfProjPads=%d\n", nbrOfProjPads);
   // o2::mch::vectorPrint( "  qProj=", chA, nbrOfProjPads);
 }
@@ -418,8 +426,9 @@ int collectPixels(int which, int N, double* xyDxy, double* q)
   for (int g = 0; g < G; g++) {
     nSrc += inspectPadProcess.xyDxyQPixels[which][g].first;
   }
-  if (N != nSrc)
+  if (N != nSrc) {
     N = 0;
+  }
 
   if (N != 0) {
     int shift = 0;

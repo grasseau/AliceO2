@@ -11,7 +11,7 @@
 
 #include <algorithm>
 #include <stdexcept>
-#include <string.h>
+#include <cstring>
 #include <vector>
 
 #include "MCHClustering/clusterProcessing.h"
@@ -44,8 +44,9 @@ static struct Results_t {
 // Release memory and reset the seed list
 void cleanClusterResults()
 {
-  for (int i = 0; i < clusterResults.seedList.size(); i++)
+  for (int i = 0; i < clusterResults.seedList.size(); i++) {
     delete[] clusterResults.seedList[i].second;
+  }
   clusterResults.seedList.clear();
   //
   deleteShort(clusterResults.padToGroups);
@@ -140,13 +141,17 @@ int clusterProcess(const double* xyDxyi_, const Mask_t* cathi_,
   if (nPads > 800) {
     // Remove noisy event
     if (ClusterConfig::processingLog >= ClusterConfig::info) {
-      printf("WARNING: remove noisy pads <z>=%f, min/max z=%f,%f",
-             vectorSum(zi_, nPads) / nPads, vectorMin(zi_, nPads),
+      printf("WARNING: remove noisy pads nPads=%d, <z>=%f, min/max z=%f,%f\n",
+             nPads, vectorSum(zi_, nPads) / nPads, vectorMin(zi_, nPads),
              vectorMax(zi_, nPads));
     }
     // Select pads which q > 2.0
     vectorBuildMaskGreater(zi_, 2.0, nPads, noiseMask);
     nNewPads = vectorSumShort(noiseMask, nPads);
+    if (ClusterConfig::processingLog >= ClusterConfig::info) {
+      printf("WARNING: remove noisy pads qCutOff=2.0, nbr of kept Pads=%d/%d\n",
+             nNewPads, nPads );
+    }
     xyDxyi__ = new double[nNewPads * 4];
     zi__ = new double[nNewPads];
     saturated__ = new Mask_t[nNewPads];
@@ -176,8 +181,9 @@ int clusterProcess(const double* xyDxyi_, const Mask_t* cathi_,
   // Compute the underlying geometry (cathode plae superposition
   int nProjPads = cluster.buildProjectedGeometry(includeSinglePads);
 
-  if (nProjPads == 0)
+  if (nProjPads == 0) {
     throw std::range_error("No projected pads !!!");
+  }
 
   // Build geometric groups of pads
   // which constitute sub-clusters
@@ -208,7 +214,7 @@ int clusterProcess(const double* xyDxyi_, const Mask_t* cathi_,
   // ??? double *chGrp=nullptr;
 
   // EM allocations
-  double* thetaEMFinal = 0;
+  double* thetaEMFinal = nullptr;
   int finalK = 0;
 
   //
@@ -329,8 +335,9 @@ int clusterProcess(const double* xyDxyi_, const Mask_t* cathi_,
   } // next group
 
   // Finalise inspectModel
-  if (ClusterConfig::inspectModel >= ClusterConfig::active)
+  if (ClusterConfig::inspectModel >= ClusterConfig::active) {
     finalizeInspectModel();
+  }
 
   if (nNewPads) {
     delete[] xyDxyi__;

@@ -439,8 +439,9 @@ Pads::Pads(const Pads* pads1, const Pads* pads2, int mode_)
 
 void Pads::removePad(int index)
 {
-  if ((index < 0) || (index >= nPads))
+  if ((index < 0) || (index >= nPads)) {
     return;
+  }
   int nItems = nPads - index;
   if (index == nPads - 1) {
     nPads = nPads - 1;
@@ -523,8 +524,9 @@ void Pads::normalizeCharges()
 PadIdx_t* Pads::buildFirstNeighbors()
 {
   int N = nPads;
-  if (neighbors == nullptr)
+  if (neighbors == nullptr) {
     neighbors = buildFirstNeighbors(x, y, dx, dy, N);
+  }
   return neighbors;
 }
 
@@ -532,8 +534,9 @@ int Pads::addIsolatedPadInGroups(Mask_t* cathToGrp, Mask_t* grpToGrp,
                                  int nGroups)
 {
   int nNewGroups = 0;
-  if (nPads == 0)
+  if (nPads == 0) {
     return nGroups;
+  }
 
   if (ClusterConfig::padMappingLog >= ClusterConfig::detail) {
     printf("[addIsolatedPadInGroups]  nGroups=%d\n", nGroups);
@@ -791,12 +794,14 @@ Pads* Pads::clipOnLocalMax(bool extractLocalMax)
           if (alreadySelect[v] == 0) {
             alreadySelect[v] = 1;
             newPixelIdx.push_back(v);
-            if (ClusterConfig::EMLocalMaxLog >= ClusterConfig::detail)
+            if (ClusterConfig::EMLocalMaxLog >= ClusterConfig::detail) {
               printf("%d, ", v);
+            }
           }
         }
-        if (ClusterConfig::EMLocalMaxLog >= ClusterConfig::detail)
+        if (ClusterConfig::EMLocalMaxLog >= ClusterConfig::detail) {
           printf("\n");
+        }
       }
     }
   }
