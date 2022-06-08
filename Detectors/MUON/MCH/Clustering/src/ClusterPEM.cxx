@@ -415,7 +415,7 @@ void ClusterPEM::computeProjectedPads(const Pads& pad0InfSup,
     ij_ptr = JInterI;
     for (PadIdx_t j = 0; j < N1; j++) {
       for (countJInterI = 0; *ij_ptr != -1; countJInterI++) {
-          ij_ptr++;
+        ij_ptr++;
       }
       if (countJInterI == 0) {
         l = x1Inf[j];
@@ -726,7 +726,7 @@ double* ClusterPEM::projectChargeOnProjGeometry(int includeAlonePads)
       k = aloneJPads[j];
       if (ClusterConfig::padMappingCheck && (k < 0)) {
         printf("ERROR: Alone j-pad with negative index j=%d\n", j);
-      // printf("Alone i-pad  i=%d, k=%d\n", i, k);
+        // printf("Alone i-pad  i=%d, k=%d\n", i, k);
       }
       projCh1[k] = ch1[j];
     }
@@ -952,8 +952,8 @@ int ClusterPEM::getConnectedComponentsOfProjPadsWOSinglePads()
   }
   while (nbrOfPadSetInGrp < N) {
     // Seeking the first unclassed pad (projPadToGrp[k]=0)
-    for (; (curPadGrp < &projPadToGrp[N]) && *curPadGrp != 0; ) {
-        curPadGrp++;
+    for (; (curPadGrp < &projPadToGrp[N]) && *curPadGrp != 0;) {
+      curPadGrp++;
     }
     k = curPadGrp - projPadToGrp;
     if (ClusterConfig::groupsLog >= ClusterConfig::detail) {

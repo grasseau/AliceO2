@@ -95,7 +95,7 @@ void compute2DPadIntegrals(const double* xInf, const double* xSup,
 }
 
 void compute1DPadIntegrals(const double* xInf, const double* xSup, int N,
-                           int chamberId, bool xAxe, double *Integrals)
+                           int chamberId, bool xAxe, double* Integrals)
 {
   // Returning array: Charge Integral on all the pads
   //
@@ -220,8 +220,8 @@ void computeFastCij(const Pads& pads, const Pads& pixel, double Cij[])
   // PadIntegralX/PadIntegralY allocation and init with -1
   // ??? double PadIntegralX[nXPixels][N];
   //     double PadIntegralY[nYPixels][N];
-  double *PadIntegralX = new double[nXPixels*N];
-  double *PadIntegralY = new double[nYPixels*N];
+  double* PadIntegralX = new double[nXPixels * N];
+  double* PadIntegralY = new double[nYPixels * N];
   // Inv. printf("??? nXPixels=%d, xPixMin=%f, xPixMax=%f, dxMinPix=%f, nPads=%d\n", nXPixels, xPixMin, xPixMax, dxMinPix, N);
   // printf("??? nYPixels=%d, yPixMin=%f, yPixMax=%f, dyMinPix=%f, nPads=%d\n", nYPixels, yPixMin, yPixMax, dyMinPix, N);
   vectorSet((double*)PadIntegralX, -1.0, nXPixels * N);
@@ -255,25 +255,25 @@ void computeFastCij(const Pads& pads, const Pads& pixel, double Cij[])
     // Cij[ N*k + p] = PadIntegralX( k, xIdx) * PadIntegralY( k, yIdx);
     // printf("k=%d, mu[k]=(%f, %f) Sum_pads Ck = %g\n", k, muX[k], muY[k],
     // vectorSum( &Cij[N*k], N) );
-    if (PadIntegralX[xIdx*N + 0] == -1) {
+    if (PadIntegralX[xIdx * N + 0] == -1) {
       // Not yet computed
       vectorAddScalar(xInf0, -muX[k], N, zInf);
       vectorAddScalar(xSup0, -muX[k], N, zSup);
       xAxe = true;
-      compute1DPadIntegrals(zInf, zSup, N, chId, xAxe, &PadIntegralX[xIdx*N+0]);
+      compute1DPadIntegrals(zInf, zSup, N, chId, xAxe, &PadIntegralX[xIdx * N + 0]);
     }
-    if (PadIntegralY[yIdx*N+0] == -1) {
+    if (PadIntegralY[yIdx * N + 0] == -1) {
       // Not yet computed
       vectorAddScalar(yInf0, -muY[k], N, zInf);
       vectorAddScalar(ySup0, -muY[k], N, zSup);
       xAxe = false;
-      compute1DPadIntegrals(zInf, zSup, N, chId, xAxe, &PadIntegralY[yIdx*N+0]);
+      compute1DPadIntegrals(zInf, zSup, N, chId, xAxe, &PadIntegralY[yIdx * N + 0]);
     }
     // Compute IC(xy) = IC(x) * IC(y)
-    vectorMultVector(&PadIntegralX[xIdx*N+0], &PadIntegralY[yIdx*N+0], N, &Cij[N * k]);
+    vectorMultVector(&PadIntegralX[xIdx * N + 0], &PadIntegralY[yIdx * N + 0], N, &Cij[N * k]);
   }
-  delete [] PadIntegralX;
-  delete [] PadIntegralY;
+  delete[] PadIntegralX;
+  delete[] PadIntegralY;
 }
 
 void computeCij(const Pads& pads, const Pads& pixel, double Cij[])

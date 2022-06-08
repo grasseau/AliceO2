@@ -150,7 +150,7 @@ int clusterProcess(const double* xyDxyi_, const Mask_t* cathi_,
     nNewPads = vectorSumShort(noiseMask, nPads);
     if (ClusterConfig::processingLog >= ClusterConfig::info) {
       printf("WARNING: remove noisy pads qCutOff=2.0, nbr of kept Pads=%d/%d\n",
-             nNewPads, nPads );
+             nNewPads, nPads);
     }
     xyDxyi__ = new double[nNewPads * 4];
     zi__ = new double[nNewPads];
