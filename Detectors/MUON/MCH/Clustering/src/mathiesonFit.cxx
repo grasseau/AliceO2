@@ -914,7 +914,6 @@ void printState(int iter, gsl_multifit_fdfsolver* s, int axe, int K, int N)
   printf("\n");
   printf(" max(dxyw) = %7.3f", dxMax);
   printf("    Jacobian\n");
-  /* Compilation pb on MacOS s->J not recognized !!
   double sum = 0.0;
   for (int k = 0; k < K; k++) {
     if (nDimensions == 3) {
@@ -937,7 +936,6 @@ void printState(int iter, gsl_multifit_fdfsolver* s, int axe, int K, int N)
     }
     printf("\n");
   }
-  */
   printf("\n");
 }
 

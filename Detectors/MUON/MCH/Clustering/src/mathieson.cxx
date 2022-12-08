@@ -1227,18 +1227,6 @@ void printXYdXY(const char* str, const double* xyDxy, int NMax, int N,
 void o2_mch_initMathieson()
 {
   o2::mch::initMathieson(o2::mch::clusterConfig.useSpline, 0);
-  /* Debuging ???
-  int N = 4;
-  double xInf[N] = {-0.1, -0.2, -0.3, -0.5};
-  double yInf[N] = {-0.1, -0.2, -0.3, -0.5};
-  double xSup[N], ySup[N], integrals[N];
-  o2::mch::vectorAddScalar(xInf, 0.5, N, xSup);
-  o2::mch::vectorAddScalar(yInf, 0.5, N, ySup);
-
-  o2::mch::compute2DPadIntegrals(xInf, xSup, yInf, ySup, N, 2,
-                                 integrals);
-  o2::mch::vectorPrint("Integral", integrals, N);
-  */
 }
 
 void o2_mch_compute2DPadIntegrals(const double* xInf, const double* xSup,
