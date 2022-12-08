@@ -61,7 +61,7 @@ class ClusterFinderGEM
   // GG method called by the process workflow ( ClusterFinderGEMSpec )
   //
 
-  void init(int mode);
+  void init(int mode, bool run2Config);
   void deinit();
   void reset();
   void fillGEMInputData(gsl::span<const Digit>& digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
@@ -76,6 +76,7 @@ class ClusterFinderGEM
   const std::vector<Digit>& getUsedDigits() const { return mUsedDigits; }
   void dumpPreCluster(ClusterDump* dumpFile, gsl::span<const Digit> digits, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
   void dumpClusterResults(ClusterDump* dumpFile, const std::vector<Cluster>& clusters, size_t startIdx, uint16_t bunchCrossing, uint32_t orbit, uint32_t iPreCluster);
+  void saveStatistics(uint32_t orbit, uint16_t bunchCrossing, uint32_t iPreCluster, uint16_t nPads, uint16_t nbrClusters, uint16_t DEId, double duration);
 
  private:
   // GG Original commented
@@ -87,8 +88,10 @@ class ClusterFinderGEM
   static constexpr int SNFitClustersMax = 3;                     ///< maximum number of clusters fitted at the same time
   static constexpr int SNFitParamMax = 3 * SNFitClustersMax - 1; ///< maximum number of fit parameters
   static constexpr double SLowestCoupling = 1.e-2;               ///< minimum coupling between clusters of pixels and pads
-  static constexpr float SDefaultClusterResolution = 0.2f;       ///< default cluster resolution (cm)
-  static constexpr float SBadClusterResolution = 10.f;           ///< bad (e.g. mono-cathode) cluster resolution (cm)
+
+  static constexpr char statFileName[] = "statistics.csv";
+  std::fstream statStream;
+
   // GG Unused
   // void resetPreCluster(gsl::span<const Digit>& digits);
   // void simplifyPreCluster(std::vector<int>& removedDigits);
