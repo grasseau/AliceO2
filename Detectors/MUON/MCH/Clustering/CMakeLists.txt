@@ -23,6 +23,7 @@ o2_target_root_dictionary(MCHClustering
 
 o2_add_library(MCHClusteringGEM
                SOURCES src/ClusterOriginal.cxx
+                       src/ClusterConfig.cxx
                        src/ClusterDump.cxx
                        src/ClusterFinderOriginal.cxx
                        src/ClusterFinderGEM.cxx
