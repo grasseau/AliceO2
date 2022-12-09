@@ -219,12 +219,11 @@ class ClusterFinderGEMTask
         // Clusterize
         if (isOriginalActivated()) {
           mClusterFinderOriginal.findClusters(digits.subspan(preCluster.firstDigit, preCluster.nDigits));
-          nbrClusters =  mClusterFinderOriginal.getClusters().size() - startOriginalIdx;
-
+          nbrClusters = mClusterFinderOriginal.getClusters().size() - startOriginalIdx;
         }
         if (isGEMActivated()) {
           mClusterFinderGEM.findClusters(digits.subspan(preCluster.firstDigit, preCluster.nDigits), bCrossing, orbit, iPreCluster);
-          nbrClusters =  mClusterFinderGEM.getClusters().size() - startGEMIdx;
+          nbrClusters = mClusterFinderGEM.getClusters().size() - startGEMIdx;
         }
         // Dump clusters (results)
         // std::cout << "[Original] total clusters.size=" << mClusterFinderOriginal.getClusters().size() << std::endl;
@@ -241,13 +240,13 @@ class ClusterFinderGEMTask
         preClusterDuration = tPreClusterEnd - tPreClusterStart;
         int16_t nPads = preCluster.nDigits;
         int16_t DEId = digits[preCluster.firstDigit].getDetID();
-        //double dt = duration_cast<duration<double>>(tPreClusterEnd - tPreClusterStart).count;
-        //std::chrono::duration<double> time_span = std::chrono::duration_cast<duration<double>>(tPreClusterEnd - tPreClusterStart);
+        // double dt = duration_cast<duration<double>>(tPreClusterEnd - tPreClusterStart).count;
+        // std::chrono::duration<double> time_span = std::chrono::duration_cast<duration<double>>(tPreClusterEnd - tPreClusterStart);
         preClusterDuration = tPreClusterEnd - tPreClusterStart;
         double dt = preClusterDuration.count();
         // In second
-        dt = ( dt < 1.0e-06 ) ? 0.0 : dt*1000;
-        mClusterFinderGEM.saveStatistics( orbit, bCrossing, iPreCluster, nPads, nbrClusters, DEId, dt);
+        dt = (dt < 1.0e-06) ? 0.0 : dt * 1000;
+        mClusterFinderGEM.saveStatistics(orbit, bCrossing, iPreCluster, nPads, nbrClusters, DEId, dt);
         iPreCluster++;
       }
       // } // Inv ??? if ( orbit==22 ) {
