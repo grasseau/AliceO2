@@ -85,7 +85,6 @@ ClusterFinderGEM::ClusterFinderGEM()
   currentBC = 0xFFFFFFFF;
   currentOrbit = 0xFFFFFFFF;
   currentPreClusterID = 0;
-
 }
 
 //_________________________________________________________________________________________________

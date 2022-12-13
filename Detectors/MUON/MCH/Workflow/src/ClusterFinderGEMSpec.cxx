@@ -65,7 +65,7 @@ class ClusterFinderGEMTask
   static constexpr char statFileName[] = "statistics.csv";
   std::fstream statStream;
   //
-  bool isActive( int selectedMode) const
+  bool isActive(int selectedMode) const
   {
     return (mode & selectedMode);
   }
@@ -255,7 +255,7 @@ class ClusterFinderGEMTask
           mClusterFinderGEM.dumpClusterResults(mGEMDump, mClusterFinderGEM.getClusters(), startGEMIdx, bCrossing, orbit, iPreCluster);
         }
         // Timing Statistics
-        if(isActive(TimingStats)) {
+        if (isActive(TimingStats)) {
           auto tPreClusterEnd = std::chrono::high_resolution_clock::now();
           preClusterDuration = tPreClusterEnd - tPreClusterStart;
           int16_t nPads = preCluster.nDigits;
