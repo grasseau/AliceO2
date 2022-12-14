@@ -22,12 +22,9 @@ o2_target_root_dictionary(MCHClustering
                           HEADERS include/MCHClustering/ClusterizerParam.h)
 
 o2_add_library(MCHClusteringGEM
-               SOURCES src/ClusterOriginal.cxx
-                       src/ClusterConfig.cxx
+               SOURCES src/ClusterConfig.cxx
                        src/ClusterDump.cxx
-                       src/ClusterFinderOriginal.cxx
                        src/ClusterFinderGEM.cxx
-                       src/ClusterizerParam.cxx
                        src/clusterProcessing.cxx
                        src/ClusterPEM.cxx
                        src/mathUtil.cxx
@@ -37,6 +34,6 @@ o2_add_library(MCHClusteringGEM
                        src/poissonEM.h
                        src/poissonEM.cxx
                        src/InspectModel.cxx
-               PUBLIC_LINK_LIBRARIES GSL::gsl O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering
+               PUBLIC_LINK_LIBRARIES GSL::gsl O2::MCHMappingInterface O2::MCHBase O2::MCHPreClustering O2::MCHClustering
                                      O2::Framework O2::CommonUtils)
 
