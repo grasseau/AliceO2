@@ -11,7 +11,7 @@
 
 #include <cstdio>
 #include <gsl/gsl_multifit_nlin.h>
-
+#include <gsl/gsl_version.h>
 #include "MCHClustering/PadsPEM.h"
 #include "mathUtil.h"
 #include "mathieson.h"
@@ -919,19 +919,25 @@ void printState(int iter, gsl_multifit_fdfsolver* s, int axe, int K, int N)
     if (nDimensions == 3) {
       printf("    k=%2d mux:", k);
       for (int i = 0; i < N; i++) {
+#if GSL_MAJOR_VERSION < 2
         printf(" % 7.3f", gsl_matrix_get(s->J, i, k));
+#endif
       }
       printf("\n");
     }
     printf("    k=%2d mux/y:", k);
     for (int i = 0; i < N; i++) {
+#if GSL_MAJOR_VERSION < 2
       printf(" % 7.3f", gsl_matrix_get(s->J, i, k + (nDimensions - 2) * K));
+#endif
     }
     printf("\n");
     if (k < K - 1) {
       printf("    k=%2d w  :", k);
       for (int i = 0; i < N; i++) {
+#if GSL_MAJOR_VERSION < 2
         printf(" % 7.3f", gsl_matrix_get(s->J, i, k + (nDimensions - 1) * K));
+#endif
       }
     }
     printf("\n");
