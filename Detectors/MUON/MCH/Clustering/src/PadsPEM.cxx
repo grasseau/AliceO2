@@ -2258,10 +2258,10 @@ void Pads::printPads(const char* title, const Pads& pads)
              i, pads.x[i], pads.dx[i], pads.y[i], pads.dy[i], pads.q[i]);
     }
   }
-// Invalid
-// } else {
-//  printf("%s can't print nullptr\n", title);
-// }
+  // Invalid
+  // } else {
+  //  printf("%s can't print nullptr\n", title);
+  // }
 }
 
 Pads::~Pads() { release(); }
